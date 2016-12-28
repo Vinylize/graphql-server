@@ -1,1 +1,3 @@
-# baedal
+# pingme-server
+- `npm i`
+- `gulp`
