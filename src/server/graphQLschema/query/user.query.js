@@ -14,7 +14,6 @@ import { PointObject } from 'graphql-geojson';
 import mongoose from 'mongoose';
 
 import User from '../type/user.type';
-
 const UserModel = mongoose.model('User');
 
 const UserQuery = {
@@ -38,7 +37,6 @@ const UserQuery = {
         }
 
         reject('jwt must be provided.');
-
       });
     },
   },

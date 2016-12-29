@@ -62,9 +62,9 @@ const UserMutation = {
                 return reject('Wrong password.');
               });
 
-            } else {
-              reject('Not registered.');
             }
+
+            return reject('Not registered.');
           })
           .catch((err)=> {
             reject(err.message);
@@ -72,6 +72,7 @@ const UserMutation = {
       })
     ),
   },
+
   //requestCheckPhone:{},
   //validiatePhone:{},
   updatePoint: {
