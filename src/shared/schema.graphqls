@@ -3,6 +3,18 @@ schema {
   mutation: rootMutation
 }
 
+input createUserInput {
+  email: String!
+  name: String!
+  password: String!
+  clientMutationId: String
+}
+
+type createUserPayload {
+  user: User
+  clientMutationId: String
+}
+
 scalar Date
 
 # Coordinate Reference System (CRS) object.
@@ -68,16 +80,21 @@ enum GeoJSONType {
   FeatureCollection
 }
 
+input getTokenInput {
+  email: String!
+  password: String!
+  clientMutationId: String
+}
+
+type getTokenPayload {
+  user: User
+  clientMutationId: String
+}
+
 # Root Mutation of the Pingsters Schema
 type rootMutation {
-  # Create a new user and get accessToken.
-  createUser(email: String!, name: String!, password: String!): User
-
-  # Sign in and get accessToken.
-  getToken(email: String!, password: String!): User
-
-  # Update position.
-  updatePoint(lon: Float!, lat: Float!): String
+  createUser(input: createUserInput!): createUserPayload
+  getToken(input: getTokenInput!): getTokenPayload
 }
 
 # Root Query of the Pingsters Schema

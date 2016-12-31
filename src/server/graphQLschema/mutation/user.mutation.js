@@ -10,7 +10,9 @@ import {
   GraphQLInterfaceType,
   GraphQLInputObjectType
 } from 'graphql';
-import { PointObject } from 'graphql-geojson';
+import {
+  mutationWithClientMutationId,
+} from 'graphql-relay';
 
 import mongoose from 'mongoose';
 
@@ -20,36 +22,48 @@ import User from '../type/user.type';
 const UserModel = mongoose.model('User');
 
 const UserMutation = {
-  createUser: {
-    type: User,
-    description: 'Create a new user and get accessToken.',
-    args: {
+  createUser: mutationWithClientMutationId({
+    name: 'createUser',
+    inputFields: {
       email: { type: new GraphQLNonNull(GraphQLString) },
       name: { type: new GraphQLNonNull(GraphQLString) },
       password: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: (source, args, _) => (
-      new Promise((resolve, reject) => {
+    outputFields: {
+      user: {
+        type: User,
+        resolve: (payload) => payload,
+      },
+    },
+    mutateAndGetPayload: (args) => {
+      return new Promise((resolve, reject) => {
         UserModel.create(args)
           .then((user)=> {
             user.accessToken = jwtUtil.createAccessToken(user);
             resolve(user);
           })
+
           .catch((err)=> {
             reject(err.message);
           });
-      })
-    ),
-  },
-  getToken: {
-    type: User,
-    description: 'Sign in and get accessToken.',
-    args: {
+      });
+    },
+  }),
+  getToken: mutationWithClientMutationId({
+    name: 'getToken',
+    inputFields: {
       email: { type: new GraphQLNonNull(GraphQLString) },
       password: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: (source, { email, password }, _) => (
-      new Promise((resolve, reject) => {
+    outputFields: {
+      user: {
+        type: User,
+        resolve: (payload) => payload,
+      },
+    },
+    mutateAndGetPayload: ({ email, password }) => {
+      console.log(email, password);
+      return new Promise((resolve, reject) => {
         UserModel.findOne({ email: email })
           .then((user)=> {
             if (user) {
@@ -62,39 +76,16 @@ const UserMutation = {
                 return reject('Wrong password.');
               });
 
+            } else {
+              return reject('Not registered.');
             }
-
-            return reject('Not registered.');
           })
           .catch((err)=> {
             reject(err.message);
           });
-      })
-    ),
-  },
-
-  //requestCheckPhone:{},
-  //validiatePhone:{},
-  updatePoint: {
-    type: GraphQLString,
-    description: 'Update position.',
-    args: {
-      lon: { type: new GraphQLNonNull(GraphQLFloat) },
-      lat: { type: new GraphQLNonNull(GraphQLFloat) },
+      });
     },
-    resolve: (source, args) => (
-      new Promise((resolve, reject) => {
-        UserModel.create(args)
-          .then((user)=> {
-            user.accessToken = jwtUtil.createAccessToken(user);
-            resolve(user);
-          })
-          .catch((err)=> {
-            reject(err.message);
-          });
-      })
-    ),
-  },
+  }),
 };
 
 export default UserMutation;
