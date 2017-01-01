@@ -98,14 +98,14 @@ const UserQuery = {
     },
     resolve: (source, { bottomLeft, upperRight }, { user }) => {
       return new Promise((resolve, reject) => {
-          const query = UserModel.find({
-            point: {
-              $geoWithin: {
-                $box: [bottomLeft, upperRight],
-              },
+        const query = UserModel.find({
+          point: {
+            $geoWithin: {
+              $box: [bottomLeft, upperRight],
             },
-          });
-          return query.exec().then((users) => resolve(users));
+          },
+        });
+        return query.exec().then((users) => resolve(users));
       });
     },
   },
