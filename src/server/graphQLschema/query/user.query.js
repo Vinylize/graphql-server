@@ -98,7 +98,6 @@ const UserQuery = {
     },
     resolve: (source, { bottomLeft, upperRight }, { user }) => {
       return new Promise((resolve, reject) => {
-        if (user) {
           const query = UserModel.find({
             point: {
               $geoWithin: {
@@ -107,9 +106,6 @@ const UserQuery = {
             },
           });
           return query.exec().then((users) => resolve(users));
-        }
-
-        reject('jwt must be provided.');
       });
     },
   },
