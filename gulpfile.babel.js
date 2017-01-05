@@ -10,14 +10,6 @@ const SOURCE = {
   DIST: 'dist',
 };
 
-gulp.task('updateSchema', ['build'], () => {
-  return nodemon({
-    script: './dist/server/updateSchema.js',
-    watch: ['src/**/*.js'],
-    tasks: ['build'],
-  });
-});
-
 gulp.task('server', ['build'], () => {
   envFile('./env.dev.list');
   return nodemon({

@@ -1,27 +1,20 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import mongoose from './util/mongoose.util.js';
-import graphqlHTTP from 'express-graphql';
-import schema from './graphQLschema/index';
-import jwtUtil from './util/jwt.util';
 import config from 'config';
+import userRouter from './user/user.router.js';
+import mapRouter from './map/map.router.js';
 
 const app = express();
+
 
 const PORT = process.env.PORT || config.SERVER.PORT;
 
 mongoose.connect();
 
-app.post('/graphql', jwtUtil.apiProtector, graphqlHTTP((request) => {
-  const startTime = Date.now();
-  return {
-    schema: schema,
-    graphiql: true,
-    rootValue: { request },
-    extensions() {
-      return { runTime: `${Date.now() - startTime}ms` };
-    },
-  };
-}));
+app.use(bodyParser.urlencoded({extended: true}));
+app.use('/user', userRouter);
+app.use('/map', mapRouter);
 
 app.listen(PORT, () => {
   console.log(`Pingsters api server listening on port ${PORT}!`);
