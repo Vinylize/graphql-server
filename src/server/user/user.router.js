@@ -4,12 +4,12 @@ import jwtUtil from '../util/jwt.util';
 
 const router = express.Router();
 
-router.get('/:id', jwtUtil.apiProtector,  UserController.getById);
+router.get('/me', jwtUtil.apiProtector, UserController.me);
 
-router.get('/', jwtUtil.apiProtector, UserController.getAll);
+router.get('/id/:_id', jwtUtil.apiProtector,  UserController.getById);
 
-router.post('/login', UserController.getToken);
+router.get('/coordinate/:_id', jwtUtil.apiProtector, UserController.getCoordinateById);
 
-router.post('/signup', UserController.createUser);
+router.put('/coordinate', jwtUtil.apiProtector, UserController.updateMyCoordinate);
 
 export default router;

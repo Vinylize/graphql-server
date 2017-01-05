@@ -16,6 +16,6 @@ export default {
   },
 
   sendVerificationMessage(to, code) {
-    this.sendMessage(to, `Pingsters verification code : ${code}`);
+    this.sendMessage(to, `Vinyl verification code : ${code}`);
   },
 };

@@ -5,7 +5,7 @@ export default class MapController {
   static getEnteredUser(req, res, next) {
     const { bottomLeft, upperRight } = req.body;
     const query = UserModel.find({
-      point: {
+      coordinate: {
         $geoWithin: {
           $box: [bottomLeft, upperRight],
         },
@@ -14,10 +14,10 @@ export default class MapController {
     query.exec()
       .then((users) => {
         if (users) return res.status(400).send(users);
-        return res.status(200).send(users);
+        return res.status(200).json(users);
       })
       .catch(err => {
-        return res.status(500).send({
+        return res.status(500).json({
           message: 'Database internal error.'
         });
       });

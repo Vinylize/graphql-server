@@ -36,7 +36,7 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  point: {
+  coordinate: {
     type: [Number],
     index: '2d',
   },
