@@ -4,6 +4,10 @@ import MapController from './map.controller';
 
 const router = express.Router();
 
-router.get('/enteredUser', jwtUtil.apiProtector, MapController.getEnteredUser);
+// get users in device screen.
+router.get('/user', MapController.getEnteredUser);
+
+// update user's position in background mode.
+router.put('/coordinate', jwtUtil.apiProtector, MapController.updateMyCoordinate);
 
 export default router;

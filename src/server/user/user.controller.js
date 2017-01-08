@@ -4,6 +4,7 @@ import jwtUtil from '../util/jwt.util';
 export default class UserController {
   static createUser(req, res, next) {
     const { email, name, password } = req.body;
+    //UserModel.find({email})
     return UserModel.create({ email, name, password })
       .then((user)=> {
         res.status(201).json({ accessToken: jwtUtil.createAccessToken(user) });
@@ -21,19 +22,19 @@ export default class UserController {
         if (user) {
           user.comparePassword(password, (err, isMatch) => {
             if (isMatch) {
-              return res.status(200).send({ accessToken: jwtUtil.createAccessToken(user) });
+              return res.status(200).json({ accessToken: jwtUtil.createAccessToken(user) });
             }
 
-            return res.status(400).send({ message: 'Worng password.' });
+            return res.status(400).json({ message: 'Worng password.' });
           });
         } else {
-          return res.status(400).send({ message: 'Not registered.' });
+          return res.status(400).json({ message: 'Not registered.' });
         }
 
       })
       .catch((err)=> {
         console.log(err);
-        return res.status(500).send(err.msg);
+        return res.status(400).json(err.msg);
       });
   }
 
@@ -75,7 +76,7 @@ export default class UserController {
       });
   }
 
-  /// TODO: make to in-memory
+  /// TODO: Change to in-memory
   static updateMyCoordinate(req, res, next) {
     const { _id } = req.user;
     const { latitude, longitude } = req.body.location;
@@ -86,7 +87,6 @@ export default class UserController {
         res.status(200).json({ msg: 'success' });
       })
       .catch((err)=> {
-        console.log(err);
         res.status(500).json(err);
       });
   }
@@ -98,7 +98,6 @@ export default class UserController {
         res.status(200).json({ lat: user.coordinate[0], lon: user.coordinate[1] });
       })
       .catch((err)=> {
-        console.log(err);
         res.status(500).json(err);
       });
   }
@@ -110,7 +109,6 @@ export default class UserController {
         res.status(200).json({ point: user.coordinate });
       })
       .catch((err)=> {
-        console.log(err);
         res.status(500).json(err);
       });
   }

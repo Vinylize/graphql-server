@@ -43,10 +43,17 @@ export default class UserController {
     const code = Math.floor(Math.random() * 9000) + 1000;
     twilioUtil.sendVerificationMessage('+8201077031801', code);
     res.status(200).send({ msg: 'send success.' });
-
   }
 
   static checkPhoneValidiation(req, res, next) {
+    //check phone secret.
+  }
+
+  static checkPromotionCode(req, res, next) {
+    //check phone secret.
+  }
+
+  static submitPromotionCode(req, res, next) {
     //check phone secret.
   }
 }

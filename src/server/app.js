@@ -29,5 +29,5 @@ app.use('/map', mapRouter);
 app.use('/user', userRouter);
 
 app.listen(PORT, () => {
-  console.log(`Pingsters api server listening on port ${PORT}!`);
+  console.log(`Vinyl api server listening on port ${PORT}!`);
 });

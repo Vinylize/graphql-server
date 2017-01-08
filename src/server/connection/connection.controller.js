@@ -1,3 +1,8 @@
-/**
- * Created by yangwoo on 2017. 1. 5..
- */
+import ConnectionModel from '../mongooseSchema/model/connection.model';
+
+export default class ConnectionController {
+
+  static getMyConnections(req, res, next) {
+
+  }
+}
