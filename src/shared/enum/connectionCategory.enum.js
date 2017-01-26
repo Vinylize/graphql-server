@@ -1,5 +1,5 @@
 export default {
   C1: {},
   C2: {},
-  C3: {},
+  C3: {}
 };
