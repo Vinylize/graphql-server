@@ -11,11 +11,13 @@ export default {
     twilioClient.messages.create({
       to: to,
       from: phoneNumber,
-      body: body,
+      body: body
     });
   },
 
-  sendVerificationMessage(to, code) {
+  sendVerificationMessage(to) {
+    const code = Math.floor(Math.random() * 9000) + 1000;
     this.sendMessage(to, `Vinyl verification code : ${code}`);
-  },
+    return code;
+  }
 };

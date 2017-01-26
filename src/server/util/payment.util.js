@@ -1,6 +1,4 @@
-
-
-export default class PaymentUtil{
+export default class PaymentUtil {
   static showMeTheMoney(from, body) {
 
   }
@@ -12,7 +10,7 @@ export default class PaymentUtil{
   static getFinalCost() {
 
   }
-};
+}
 
 function isAvaliableToPay() {
 

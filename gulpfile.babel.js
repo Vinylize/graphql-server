@@ -1,8 +1,10 @@
+import apidoc from 'gulp-apidoc';
 import babel from 'gulp-babel';
 import envFile from 'node-env-file';
 import gulp from 'gulp';
 import nodemon from 'gulp-nodemon';
 import rimraf from 'rimraf';
+import runSequence from 'run-sequence';
 import sourcemaps from 'gulp-sourcemaps';
 
 const SOURCE = {
@@ -10,17 +12,15 @@ const SOURCE = {
   DIST: 'dist',
 };
 
-gulp.task('server', ['build'], () => {
+gulp.task('default', ['build'], () => {
   envFile('./env.dev.list');
   return nodemon({
     script: './dist/server/app.js',
-    watch: ['src/**/*.js'],
+    watch: [SOURCE.ALL],
     tasks: ['build'],
     env: { NODE_ENV: 'development' },
   });
 });
-
-gulp.task('clean', () => rimraf.sync(SOURCE.DIST));
 
 gulp.task('build', ['clean'], () => {
   return gulp.src(SOURCE.ALL)
@@ -29,3 +29,5 @@ gulp.task('build', ['clean'], () => {
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('dist'));
 });
+
+gulp.task('clean', () => rimraf.sync(SOURCE.DIST));

@@ -4,7 +4,7 @@ import jwtUtil from '../util/jwt.util';
 export default class UserController {
   static createUser(req, res, next) {
     const { email, name, password } = req.body;
-    //UserModel.find({email})
+    // UserModel.find({email})
     return UserModel.create({ email, name, password })
       .then((user)=> {
         res.status(201).json({ accessToken: jwtUtil.createAccessToken(user) });
@@ -30,7 +30,6 @@ export default class UserController {
         } else {
           return res.status(400).json({ message: 'Not registered.' });
         }
-
       })
       .catch((err)=> {
         console.log(err);
@@ -46,13 +45,13 @@ export default class UserController {
           res.status(200).json(user);
         } else {
           res.status(400).json({
-            message: 'No user',
+            message: 'No user'
           });
         }
       })
       .catch((err) => {
         res.status(500).json({
-          message: 'Database internal error.',
+          message: 'Database internal error.'
         });
       });
   }
@@ -65,18 +64,18 @@ export default class UserController {
           res.status(200).json(user);
         } else {
           res.status(400).json({
-            message: 'No user',
+            message: 'No user'
           });
         }
       })
       .catch((err) => {
         res.status(500).json({
-          message: 'Database internal error.',
+          message: 'Database internal error.'
         });
       });
   }
 
-  /// TODO: Change to in-memory
+  // / TODO: Change to in-memory
   static updateMyCoordinate(req, res, next) {
     const { _id } = req.user;
     const { latitude, longitude } = req.body.location;

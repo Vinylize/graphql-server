@@ -1,6 +1,6 @@
 {
-  "name": "pingme-server",
-  "version": "1.0.0",
+  "name": "Vinyl",
+  "version": "0.0.1",
   "description": "",
   "main": "server.js",
   "scripts": {
@@ -9,21 +9,26 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pingsters/pingme-server.git"
+    "url": "git+https://github.com/Vinylize/vinyl-server.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/pingsters/pingme-server/issues"
+    "url": "https://github.com/Vinylize/vinyl-server/issues"
   },
-  "homepage": "https://github.com/pingsters/pingme-server#readme",
+  "homepage": "https://github.com/Vinylize/vinyl-server#readme",
   "dependencies": {
     "babel-preset-stage-0": "^6.16.0",
     "bcrypt": "^1.0.1",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "express-graphql": "^0.6.1",
     "express-jwt": "^5.1.0",
     "fcm-push": "^1.1.2",
+    "firebase-admin": "^4.0.5",
+    "graphql": "^0.8.2",
+    "graphql-date": "^1.0.2",
+    "graphql-relay": "^0.4.4",
     "method-override": "^2.3.7",
     "mongoose": "^4.7.4",
     "morgan": "^1.7.0",
@@ -31,6 +36,7 @@
     "path": "^0.12.7",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
+    "run-sequence": "^1.2.2",
     "twilio": "^2.11.1"
   },
   "devDependencies": {
@@ -41,6 +47,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.20.2",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-latest": "^6.16.0",
+    "eslint": "^3.12.2",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-cli": "^1.2.2",

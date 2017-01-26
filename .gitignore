@@ -95,8 +95,11 @@ jspm_packages
 
 #env file
 *.list
+firebaseDev.json
+firebaseProd.json
 
 #dist folder
 dist
+temp
 
 
