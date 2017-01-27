@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/me', jwtUtil.apiProtector, UserController.me);
 
-router.get('/id/:_id', jwtUtil.apiProtector,  UserController.getById);
+router.get('/id/:_id', jwtUtil.apiProtector, UserController.getById);
 
 router.get('/coordinate/:_id', jwtUtil.apiProtector, UserController.getCoordinateById);
 

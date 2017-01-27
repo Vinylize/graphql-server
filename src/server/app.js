@@ -1,33 +1,51 @@
-import bodyParser from 'body-parser';
+import { GraphQLSchema, GraphQLObjectType } from 'graphql';
+
 import express from 'express';
+import graphqlHTTP from 'express-graphql';
+import logger from 'winston';
 
-import methodOverride from 'method-override';
-import mongoose from './util/mongoose.util.js';
-import morgan from 'morgan';
-
-/*
-router
- */
-import authRouter from './auth/auth.router.js';
-import mapRouter from './map/map.router.js';
-import userRouter from './user/user.router.js';
+import jwtUtil from './util/jwt.util';
+import UserMutation from './mutation/user.mutation';
+import ConnectionMutation from './mutation/connection.mutation';
+import ReportMutation from './mutation/report.mutation';
+import ViewerQuery from './query/viewer.query';
 
 const app = express();
+const PORT = process.env.PORT;
+const schema = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: 'rootQuery',
+    description: 'Root Query of the Recbook Schema',
+    fields: () => ({
+      ...ViewerQuery
+    })
+  }),
+  mutation: new GraphQLObjectType({
+    name: 'rootMutation',
+    description: 'Root Mutation of the Recbook Schema',
+    fields: () => ({
+      ...UserMutation,
+      ...ConnectionMutation,
+      ...ReportMutation
+    })
+  })
+});
 
-const PORT = process.env.PORT || config.SERVER.PORT;
-
-mongoose.connect();
-
-app.use(morgan('dev'));
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(methodOverride());
-
-app.use('/auth', authRouter);
-app.use('/map', mapRouter);
-app.use('/user', userRouter);
+app.post('/graphql', jwtUtil.apiProtector, graphqlHTTP((request) => {
+  const startTime = Date.now();
+  return {
+    schema: schema,
+    graphiql: true,
+    rootValue: { request },
+    extensions(ext) {
+      // TODO : Fhtttind why `logger.debug(ext.result)` doesn't work on this part.
+      // logger.debug(ext.result);
+      console.log(ext.result);
+      return { runTime: `${Date.now() - startTime}ms` };
+    }
+  };
+}));
 
 app.listen(PORT, () => {
-  console.log(`Vinyl api server listening on port ${PORT}!`);
+  logger.info(`Vinyl api server listening on port ${PORT}!`);
 });

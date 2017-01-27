@@ -1,6 +1,5 @@
 export default class ETAUtil {
-  static  getETA(connection) {
-
-    return 0
+  static getETA(connection) {
+    return 0;
   }
 }

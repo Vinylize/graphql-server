@@ -1,5 +1,3 @@
-import UserModel from '../mongooseSchema/model/user.model';
-
 export default class MapController {
 
   static getEnteredUser(req, res, next) {
@@ -7,9 +5,9 @@ export default class MapController {
     const query = UserModel.find({
       coordinate: {
         $geoWithin: {
-          $box: [bottomLeft, upperRight],
-        },
-      },
+          $box: [bottomLeft, upperRight]
+        }
+      }
     });
     query.exec()
       .then((users) => {
@@ -18,7 +16,7 @@ export default class MapController {
       })
       .catch(err => {
         return res.status(500).json({
-          message: 'Database internal error.',
+          message: 'Database internal error.'
         });
       });
   }
