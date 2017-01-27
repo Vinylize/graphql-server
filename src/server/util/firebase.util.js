@@ -20,6 +20,7 @@ const refs = {
   userProperties: userPropertiesRef,
   userPortQualification: userPropertiesRef.child('portQualification'),
   userShipQualification: userPropertiesRef.child('shipQualification'),
+  userCoordinate: userPropertiesRef.child('coordinate'),
   userPaymentInfo: userPropertiesRef.child('paymentInfo'),
   userAddress: userPropertiesRef.child('address'),
   userPhoneValidationInfo: userPropertiesRef.child('phoneValidationInfo'),

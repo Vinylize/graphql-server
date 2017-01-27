@@ -1,5 +1,6 @@
 import {
   GraphQLBoolean,
+  GraphQLFloat,
   GraphQLInt,
   GraphQLList,
   GraphQLObjectType,
@@ -28,6 +29,15 @@ const ShipQualificationType = new GraphQLObjectType({
     agreedAt: { type: GraphQLDate },
     isApproved: {type: GraphQLBoolean },
     approvedAt: {type: GraphQLDate }
+  })
+});
+
+const CoordinateType = new GraphQLObjectType({
+  name: 'CoordinateType',
+  description: 'CoordinateType of user.',
+  fields: () => ({
+    lat: { type: GraphQLFloat },
+    lon: { type: GraphQLFloat }
   })
 });
 
@@ -73,7 +83,19 @@ const UserType = new GraphQLObjectType({
     isPhoneValid: { type: GraphQLBoolean },
     rating: { type: GraphQLInt },
     country: { type: GraphQLString },
-    portQualification: { type: PortQualificationType,
+    coordinate: {
+      type: CoordinateType,
+      resolve: (source) => {
+        return new Promise((resolve, reject) => {
+          firebase.refs.userCoordinate.child(source.id).once('value')
+            .then((snap) => {
+              return resolve(snap.val());
+            });
+        });
+      }
+    },
+    portQualification: {
+      type: PortQualificationType,
       resolve: (source, args, { user }) => {
         return new Promise((resolve, reject) => {
           firebase.refs.userPortQualification.child(source.id).once('value')
