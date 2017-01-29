@@ -50,7 +50,7 @@ const defaultSchema = {
     approvedAt: null
   },
   userPhoneValidationInfo: {
-    expiredAt: Date.now() + 180
+    expiredAt: Date.now() + 120000
   },
   connection: {
     ship: null,
