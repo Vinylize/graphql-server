@@ -65,7 +65,7 @@ const userCreateOrderMutation = {
             });
           })
           .then(()=> {
-            resolve({result: 'OK'});
+            resolve({result: newOrderKey});
           })
           .catch(reject);
       }
