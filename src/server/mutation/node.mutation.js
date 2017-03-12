@@ -10,9 +10,9 @@ import {
 import UserType from '../type/user.type';
 import firebase from '../util/firebase.util';
 
-const ReportMutation = {
-  createReport: mutationWithClientMutationId({
-    name: 'createReport',
+const NodeMutation = {
+  createNode: mutationWithClientMutationId({
+    name: 'createNode',
     inputFields: {},
     outputFields: {
       result: {
@@ -25,4 +25,4 @@ const ReportMutation = {
   })
 };
 
-export default ReportMutation;
+export default NodeMutation;

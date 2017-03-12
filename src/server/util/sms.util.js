@@ -46,16 +46,16 @@ export default {
       });
       res.on('end', (d) => {
         if (res.statusCode == 200) {
-          //console.log(JSON.parse(responseBody));
+          // console.log(JSON.parse(responseBody));
         } else {
-          //console.log(responseBody);
+          // console.log(responseBody);
         }
       });
     });
     req.write(body);
     req.end();
     req.on('error', function (err) {
-      //console.error(err);
+      // console.error(err);
     });
   },
 

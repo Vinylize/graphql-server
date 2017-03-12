@@ -10,6 +10,14 @@ const NOTIFICATION_CONFIG = {
   vibrate: 300
 };
 
+function generateBody(notificationType, bodyParam) {
+  if (notificationType === 'MESSAGE') {
+    return `${bodyParam}`;
+  }
+  return `${bodyParam} ${NOTIFICATION_TYPE[notificationType].bodyParam}`;
+}
+
+
 export default {
   sendPush(receiverId, notificationType, bodyParam, extraData = {}) {
     User.findOne({ _id: receiverId }).exec()
@@ -42,9 +50,3 @@ export default {
   }
 };
 
-function generateBody(notificationType, bodyParam) {
-  if (notificationType === 'MESSAGE') {
-    return `${bodyParam}`;
-  }
-  return `${bodyParam} ${NOTIFICATION_TYPE[notificationType].bodyParam}`;
-}

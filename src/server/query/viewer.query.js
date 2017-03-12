@@ -1,4 +1,6 @@
-import firebase from '../util/firebase.util';
+import {
+  refs
+} from '../util/firebase.util';
 import UserType from '../type/user.type';
 
 const ViewerQuery = {
@@ -8,12 +10,10 @@ const ViewerQuery = {
     resolve: (source, _, { user }) => {
       return new Promise((resolve, reject) => {
         if (user) {
-          firebase.refs.user.child(user.uid).once('value')
+          refs.user.root.child(user.uid).once('value')
             .then((snap) => {
               resolve({
                 id: user.uid,
-                name: user.name,
-                email: user.email,
                 ...snap.val()
               });
             });

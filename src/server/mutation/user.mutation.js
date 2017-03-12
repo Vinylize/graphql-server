@@ -8,12 +8,21 @@ import {
   mutationWithClientMutationId
 } from 'graphql-relay';
 
-import firebase from '../util/firebase.util';
+import {
+  admin,
+  defaultSchema,
+  refs
+} from '../util/firebase.util';
+
 import smsUtil from '../util/sms.util';
+
+import bcrypt from 'bcrypt';
+
+const saltRounds = 10;
 
 const createUserMutation = {
   name: 'createUser',
-  description: 'Register',
+  description: 'Register User to firebase via yetta server.',
   inputFields: {
     email: {type: new GraphQLNonNull(GraphQLString)},
     name: {type: new GraphQLNonNull(GraphQLString)},
@@ -27,7 +36,7 @@ const createUserMutation = {
   },
   mutateAndGetPayload: ({email, password, name}) => {
     return new Promise((resolve, reject) => {
-      firebase.admin.auth().createUser({
+      admin.auth().createUser({
         email: email,
         emailVerified: false,
         password: password,
@@ -35,17 +44,21 @@ const createUserMutation = {
         disabled: false
       })
         .then((createdUser) => {
-          return firebase.refs.user.child(createdUser.uid).set({
-            ...firebase.defaultSchema.user
+          return refs.user.root.child(createdUser.uid).set({
+            id: createdUser.uid,
+            email: email,
+            password: bcrypt.hashSync(password, saltRounds),
+            name: name,
+            ...defaultSchema.user.root
           })
             .then(() => {
-              return firebase.refs.userPortQualification.child(createdUser.uid).set({
-                ...firebase.defaultSchema.userPortQualification
+              return refs.user.userQualification.child(createdUser.uid).set({
+                ...defaultSchema.user.orderQualification
               });
             })
             .then(() => {
-              return firebase.refs.userShipQualification.child(createdUser.uid).set({
-                ...firebase.defaultSchema.userShipQualification
+              return refs.user.runnerQualification.child(createdUser.uid).set({
+                ...defaultSchema.user.runnerQualification
               });
             });
         })
@@ -68,7 +81,7 @@ const userUpdateCoordinateMutation = {
   mutateAndGetPayload: (args, { user }) => {
     return new Promise((resolve, reject) => {
       if (user) {
-        return firebase.refs.userCoordinate.child(user.uid).set(args)
+        return refs.user.coordinate.child(user.uid).set(args)
           .then(() => resolve({result: 'OK'}))
           .catch(reject);
       }
@@ -90,11 +103,10 @@ const userRequestPhoneValidationMutation = {
     return new Promise((resolve, reject) => {
       if (user) {
         const code = smsUtil.getRandomCode();
-        console.log(code);
         smsUtil.sendVerificationMessage(phoneNumber, code);
-        return firebase.refs.userPhoneValidationInfo.child(user.uid).set({
+        return refs.user.phoneVerificationInfo.child(user.uid).set({
           code,
-          ...firebase.defaultSchema.userPhoneValidationInfo
+          expiredAt: Date.now() + (120 * 1000)
         })
           .then(() => resolve({result: 'OK'}))
           .catch(reject);
@@ -116,9 +128,8 @@ const userResponsePhoneValidationMutation = {
   mutateAndGetPayload: ({ code }, { user }) => {
     return new Promise((resolve, reject) => {
       if (user) {
-        return firebase.refs.userPhoneValidationInfo.child(user.uid).once('value')
+        return refs.user.phoneVerificationInfo.child(user.uid).once('value')
           .then((snap) => {
-          console.log(snap.val(), Date.now());
             if (snap.val().expiredAt < Date.now()) {
               // top priority
               return reject('time exceeded.');
@@ -128,7 +139,7 @@ const userResponsePhoneValidationMutation = {
             }
             return null;
           })
-          .then(() => firebase.refs.user.child(user.uid).child('isPhoneValid').set(true))
+          .then(() => refs.user.root.child(user.uid).child('isPhoneValid').set(true))
           .then(() => resolve({ result: 'OK'}))
           .catch(reject);
       }

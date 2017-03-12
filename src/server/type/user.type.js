@@ -8,12 +8,13 @@ import {
 } from 'graphql';
 import GraphQLDate from 'graphql-date';
 
-import firebase from '../util/firebase.util';
-import ConnectionType from './connection.type';
-import ReportType from './report.type';
+import {
+  refs
+} from '../util/firebase.util';
+import OrderType from './order.type';
 
-const PortQualificationType = new GraphQLObjectType({
-  name: 'PortQualification',
+const UserQualificationType = new GraphQLObjectType({
+  name: 'userQualification',
   description: 'Type of properties of port.',
   fields: () => ({
     isAgreed: { type: GraphQLBoolean },
@@ -21,19 +22,21 @@ const PortQualificationType = new GraphQLObjectType({
   })
 });
 
-const ShipQualificationType = new GraphQLObjectType({
-  name: 'ShipQualification',
+const RunnerQualificationType = new GraphQLObjectType({
+  name: 'runnerQualification',
   description: 'Type of properties of ship.',
   fields: () => ({
     isAgreed: { type: GraphQLBoolean },
     agreedAt: { type: GraphQLDate },
-    isApproved: {type: GraphQLBoolean },
-    approvedAt: {type: GraphQLDate }
+    isFirstApproved: { type: GraphQLBoolean },
+    firstApprovedAt: { type: GraphQLDate },
+    isSecondApproved: { type: GraphQLBoolean },
+    secondApprovedAt: { type: GraphQLDate }
   })
 });
 
 const CoordinateType = new GraphQLObjectType({
-  name: 'CoordinateType',
+  name: 'coordinate',
   description: 'CoordinateType of user.',
   fields: () => ({
     lat: { type: GraphQLFloat },
@@ -41,11 +44,22 @@ const CoordinateType = new GraphQLObjectType({
   })
 });
 
-const PaymentInfoType = new GraphQLObjectType({
-  name: 'paymentInfo',
-  description: 'paymentInfoType of user.',
+const UserPaymentInfoType = new GraphQLObjectType({
+  name: 'userPaymentInfo',
+  description: 'UserPaymentInfoType of user.',
   fields: () => ({
-    cardNumber: { type: GraphQLString },
+    type: { type: GraphQLInt},
+    number: { type: GraphQLString },
+    provider: { type: GraphQLString }
+  })
+});
+
+const RunnerPaymentInfoType = new GraphQLObjectType({
+  name: 'runnerPaymentInfo',
+  description: 'RunnerPaymentInfoType of user.',
+  fields: () => ({
+    type: { type: GraphQLInt},
+    number: { type: GraphQLString },
     provider: { type: GraphQLString }
   })
 });
@@ -62,17 +76,28 @@ const AddressType = new GraphQLObjectType({
   })
 });
 
-const PhoneValidationInfoType = new GraphQLObjectType({
-  name: 'phoneValidationInfo',
-  description: 'phoneValidationInfoType of user.',
+const PhoneVerificationInfoType = new GraphQLObjectType({
+  name: 'phoneVerificationInfo',
+  description: 'phoneVerificationInfoType of user.',
   fields: () => ({
     code: { type: GraphQLInt },
     expiredAt: { type: GraphQLDate }
   })
 });
 
+const HelpType = new GraphQLObjectType({
+  name: 'help',
+  description: 'helpType of user.',
+  fields: () => ({
+    comment: { type: GraphQLString },
+    createdAt: { type: GraphQLDate },
+    answer: { type: GraphQLString },
+    answerdAt: { type: GraphQLDate }
+  })
+});
+
 const UserType = new GraphQLObjectType({
-  name: 'User',
+  name: 'user',
   description: 'UserType of Vinyl.',
   fields: () => ({
     id: { type: GraphQLString },
@@ -82,45 +107,53 @@ const UserType = new GraphQLObjectType({
     phoneNumber: { type: GraphQLString },
     isPhoneValid: { type: GraphQLBoolean },
     rating: { type: GraphQLInt },
-    country: { type: GraphQLString },
+    profileImageUrl: { type: GraphQLString },
+    identificationImageUrl: { type: GraphQLString },
     coordinate: {
       type: CoordinateType,
       resolve: (source) => {
         return new Promise((resolve, reject) => {
-          firebase.refs.userCoordinate.child(source.id).once('value')
-            .then((snap) => {
-              return resolve(snap.val());
-            });
+          refs.user.coordinate.child(source.id).once('value')
+            .then((snap) => resolve(snap.val()))
+            .catch(reject);
         });
       }
     },
-    portQualification: {
-      type: PortQualificationType,
+    userQualification: {
+      type: UserQualificationType,
       resolve: (source, args, { user }) => {
         return new Promise((resolve, reject) => {
-          firebase.refs.userPortQualification.child(source.id).once('value')
-          .then((snap) => {
-            return resolve(snap.val());
-          });
+          refs.user.userQualification.child(source.id).once('value')
+            .then((snap) => resolve(snap.val()))
+            .catch(reject);
         });
       }
     },
-    shipQualification: {
-      type: ShipQualificationType,
+    RunnerQualification: {
+      type: RunnerQualificationType,
       resolve: (source, args, { user }) => {
         return new Promise((resolve, reject) => {
-          firebase.refs.userShipQualification.child(source.id).once('value')
-            .then((snap) => {
-              return resolve(snap.val());
-            });
+          refs.user.runnerQualification.child(source.id).once('value')
+            .then((snap) => resolve(snap.val()))
+            .catch(reject);
         });
       }
     },
-    paymentInfo: {
-      type: new GraphQLList(PaymentInfoType),
+    UserPaymentInfo: {
+      type: new GraphQLList(UserPaymentInfoType),
       resolve: (source, args, { user }) => {
         return new Promise((resolve, reject) => {
-          firebase.refs.userPaymentInfo.child(source.id).once('value')
+          refs.user.userPaymentInfo.child(source.id).once('value')
+            .then((snap) => resolve(snap.val()))
+            .catch(reject);
+        });
+      }
+    },
+    RunnerPaymentInfo: {
+      type: new GraphQLList(RunnerPaymentInfoType),
+      resolve: (source, args, { user }) => {
+        return new Promise((resolve, reject) => {
+          refs.user.runnerPaymentInfo.child(source.id).once('value')
             .then((snap) => resolve(snap.val()))
             .catch(reject);
         });
@@ -130,37 +163,42 @@ const UserType = new GraphQLObjectType({
       type: new GraphQLList(AddressType),
       resolve: (source, args, { user }) => {
         return new Promise((resolve, reject) => {
-          firebase.refs.userAddress.child(source.id).once('value')
+          refs.user.address.child(source.id).once('value')
             .then((snap) => resolve(snap.val()))
             .catch(reject);
         });
       }
     },
-    phoneValidationInfo: {
-      type: PhoneValidationInfoType,
+    phoneVerificationInfo: {
+      type: PhoneVerificationInfoType,
       resolve: (source, args, { user }) => {
         return new Promise((resolve, reject) => {
-          firebase.refs.userPhoneValidationInfo.child(source.id).once('value')
+          refs.user.phoneVerificationInfo.child(source.id).once('value')
+            .then((snap) => resolve(snap.val()))
+            .catch(reject);
+        });
+      }
+    },
+    help: {
+      type: new GraphQLList(HelpType),
+      resolve: (source, args, { user }) => {
+        return new Promise((resolve, reject) => {
+          refs.user.help.child(source.id).once('value')
             .then((snap) => resolve(snap.val()))
             .catch(reject);
         });
       }
     },
     ship: {
-      type: new GraphQLList(ConnectionType),
+      type: new GraphQLList(OrderType),
       resolve: (source, args, { user }) => {
       }
     },
     port: {
-      type: new GraphQLList(ConnectionType),
+      type: new GraphQLList(OrderType),
       resolve: (source, args, { user }) => {
       }
     },
-    myReport: {
-      type: new GraphQLList(ReportType),
-      resolve: (source, args, { user }) => {
-      }
-    }
   })
 });
 

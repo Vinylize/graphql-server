@@ -1,4 +1,4 @@
-# pingme-server
+# Yetta-Server
 - `npm i`
 - `gulp`
 
