@@ -5,8 +5,7 @@ import graphqlHTTP from 'express-graphql';
 import multer from 'multer';
 import logger from 'winston';
 
-import jwtUtil from './util/jwt.util';
-
+import authUtil from './util/auth.util';
 import UserMutation from './mutation/user.mutation';
 import OrderMutation from './mutation/order.mutation';
 import NodeMutation from './mutation/node.mutation';
@@ -18,6 +17,8 @@ import UploadQuery from './query/upload.query';
 
 const app = express();
 const PORT = process.env.PORT;
+
+// General Endpoint
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -33,25 +34,31 @@ const schema = new GraphQLSchema({
     fields: () => ({
       ...UserMutation,
       ...OrderMutation,
-      ...NodeMutation
+      ...NodeMutation,
+      ...PartnerMutation
     })
   })
 });
 
-app.post('/graphql', jwtUtil.apiProtector, graphqlHTTP((request) => {
-  const startTime = Date.now();
-  return {
-    schema: schema,
-    graphiql: true,
-    rootValue: { request },
-    extensions(ext) {
+app.post(
+    '/graphql',
+    authUtil.apiProtector,
+    graphqlHTTP((request) => {
+      const startTime = Date.now();
+      return {
+        schema: schema,
+        graphiql: true,
+        rootValue: { request },
+        extensions(ext) {
       // TODO : Find why `logger.debug(ext.result)` doesn't work on this part.
       // logger.debug(ext.result);
-      console.log(ext.result);
-      return { runTime: `${Date.now() - startTime}ms` };
-    }
-  };
-}));
+          console.log(ext.result);
+          return { runTime: `${Date.now() - startTime}ms` };
+        }
+      };
+    }));
+
+// Upload Endpoint
 
 const uploadSchema = new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -73,15 +80,15 @@ const uploadSchema = new GraphQLSchema({
 const storage = multer.memoryStorage();
 
 app.post(
-  '/graphql/upload',
-  jwtUtil.apiProtector,
-  multer({ storage }).single('file'),
-  graphqlHTTP((request) => {
-    return {
-      schema: uploadSchema,
-      rootValue: { request }
-    };
-  }));
+    '/graphql/upload',
+    authUtil.apiProtector,
+    multer({ storage }).single('file'),
+    graphqlHTTP((request) => {
+      return {
+        schema: uploadSchema,
+        rootValue: { request }
+      };
+    }));
 
 app.listen(PORT, () => {
   logger.info(`Vinyl api server listening on port ${PORT}!`);

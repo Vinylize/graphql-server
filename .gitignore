@@ -102,4 +102,6 @@ firebaseProd.json
 dist
 temp
 
+.vscode
+
 
