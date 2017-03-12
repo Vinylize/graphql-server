@@ -22,4 +22,4 @@ const NodeType = new GraphQLObjectType({
   })
 });
 
-export default ReportType;
+export default NodeType;

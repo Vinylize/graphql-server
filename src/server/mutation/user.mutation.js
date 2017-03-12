@@ -90,8 +90,8 @@ const userUpdateCoordinateMutation = {
   }
 };
 
-const userRequestPhoneValidationMutation = {
-  name: 'userRequestPhoneValidation',
+const userRequestPhoneVerifiactionMutation = {
+  name: 'userRequestPhoneVerification',
   description: 'Send verification message to user.',
   inputFields: {
     phoneNumber: {type: new GraphQLNonNull(GraphQLString)}
@@ -116,9 +116,9 @@ const userRequestPhoneValidationMutation = {
   }
 };
 
-const userResponsePhoneValidationMutation = {
-  name: 'userResponsePhoneValidation',
-  description: 'Check validation of phoneNumber.',
+const userResponsePhoneVerificationMutation = {
+  name: 'userResponsePhoneVerification',
+  description: 'Verification of phoneNumber.',
   inputFields: {
     code: {type: new GraphQLNonNull(GraphQLInt)}
   },
@@ -151,8 +151,8 @@ const userResponsePhoneValidationMutation = {
 const UserMutation = {
   createUser: mutationWithClientMutationId(createUserMutation),
   userUpdateCoordinate: mutationWithClientMutationId(userUpdateCoordinateMutation),
-  userRequestPhoneValidation: mutationWithClientMutationId(userRequestPhoneValidationMutation),
-  userResponsePhoneValidation: mutationWithClientMutationId(userResponsePhoneValidationMutation)
+  userRequestPhoneVerification: mutationWithClientMutationId(userRequestPhoneVerifiactionMutation),
+  userResponsePhoneVerification: mutationWithClientMutationId(userResponsePhoneVerificationMutation)
 };
 
 export default UserMutation;
