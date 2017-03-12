@@ -1,22 +1,39 @@
 import {
   GraphQLString,
-  GraphQLNonNull
+  GraphQLNonNull,
+  GraphQLInt,
+  GraphQLList,
+  GraphQLInputObjectType,
+  GraphQLFloat
 } from 'graphql';
 import {
   mutationWithClientMutationId
 } from 'graphql-relay';
 
-import firebase from '../util/firebase.util';
-import UserType from '../type/user.type';
-import ConnectionType from '../type/order.type';
+import {
+  defaultSchema,
+  refs
+} from '../util/firebase.util';
 
-const connectionOpenPortMutation = {
-  name: 'connectionOpenPort',
+const ItemType = new GraphQLInputObjectType({
+  name: 'Item',
+  fields: () => ({
+    nodeId: { type: new GraphQLNonNull(GraphQLString) },
+    itemId: { type: new GraphQLNonNull(GraphQLString) },
+    amount: { type: new GraphQLNonNull(GraphQLInt) },
+// if custom type
+    itemName: { type: GraphQLString },
+    itemPrice: { type: GraphQLFloat }
+  })
+});
+
+const userCreateOrderMutation = {
+  name: 'userCreateOrder',
   inputFields: {
-    category: { type: new GraphQLNonNull(GraphQLString) },
-    subCategory: { type: new GraphQLNonNull(GraphQLString) }
-
-    // / TODO : define connection initial data.
+    items: { type: new GraphQLNonNull(new GraphQLList(ItemType)) },
+    dCategory: { type: new GraphQLNonNull(GraphQLInt) },
+    rCategory: { type: new GraphQLNonNull(GraphQLInt) },
+    currency: { type: new GraphQLNonNull(GraphQLString) }
   },
   outputFields: {
     result: {
@@ -24,33 +41,43 @@ const connectionOpenPortMutation = {
       resolve: (payload) => payload.result
     }
   },
-  mutateAndGetPayload: ({ category, subCategory }, { user }) => {
+  mutateAndGetPayload: ({ items, dCategory, rCategory, currency }, { user }) => {
     return new Promise((resolve, reject) => {
       if (user) {
-        const newRef = firebase.refs.connection.push();
-        const newKey = newRef.key;
+        // Create new order root in firebase.
+        const newRef = refs.order.root.push();
+        const newOrderKey = newRef.key;
         return newRef.set({
-          id: newKey,
-          port: user.uid,
-          category,
-          subCategory,
-          ...firebase.defaultSchema.connection
+          id: newOrderKey,
+          ordererId: user.uid,
+            // TODO : define order's category( d & r )
+          dCategory,
+          rCategory,
+          currency,
+            // TODO : impl price calculation logic.
+          estimatedDeliveryPrice: 10000,
+          ...defaultSchema.order.root
         })
+        // Create new orderPriperties in firebase.
+          .then(() => {
+            return refs.order.itemInfo.child(newOrderKey).set({
+              ...items
+            });
+          })
           .then(()=> {
             resolve({result: 'OK'});
           })
           .catch(reject);
-      } else {
-        return reject('This mutation needs accessToken.');
       }
+      return reject('This mutation needs accessToken.');
     });
   }
 };
 
-const connectionStartShipMutation = {
-  name: 'connectionStartShip',
+const runnerCatchOrderMutation = {
+  name: 'runnerCatchDeliveryOrder',
   inputFields: {
-    connectionId: { type: new GraphQLNonNull(GraphQLString) }
+    orderId: { type: new GraphQLNonNull(GraphQLString) }
   },
   outputFields: {
     result: {
@@ -58,26 +85,26 @@ const connectionStartShipMutation = {
       resolve: (payload) => payload.result
     }
   },
-  mutateAndGetPayload: ({ connectionId }, {user}) => {
+  mutateAndGetPayload: ({ orderId }, {user}) => {
     return new Promise((resolve, reject) => {
       if (user) {
         // / TODO : Maybe transaction issue will be occurred.
-        return firebase.refs.connection.child(connectionId).once('value')
-          .then((connectionSnap) => {
-            const connection = connectionSnap.val();
-            if (!connection) {
+        return refs.order.root.child(orderId).once('value')
+          .then((orderSnap) => {
+            const order = orderSnap.val();
+            if (!order) {
               return reject('Connection doesn\'t exist.');
             }
-            if (connection.port === user.uid ) {
+            if (order.ordererId === user.uid) {
               return reject('Can\'t ship your port.');
             }
-            if (connection.ship === user.uid) {
+            if (order.runnerId === user.uid) {
               return reject('This ship is already designated for you.');
             }
-            if (connection.ship) {
+            if (order.runnerId) {
               return reject('This ship is already designated for other user.');
             }
-            return firebase.refs.connection.child(connectionId).child('ship').set(user.uid);
+            return refs.order.root.child(orderId).child('runnerId').set(user.uid);
           })
           .then(() => {
             resolve({result: 'OK'});
@@ -89,8 +116,8 @@ const connectionStartShipMutation = {
 };
 
 const OrderMutation = {
-  connectionOpenPort: mutationWithClientMutationId(connectionOpenPortMutation),
-  connectionStartShip: mutationWithClientMutationId(connectionStartShipMutation)
+  userCreateOrder: mutationWithClientMutationId(userCreateOrderMutation),
+  runnerCatchOrder: mutationWithClientMutationId(runnerCatchOrderMutation)
 };
 
 export default OrderMutation;

@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/Vinylize/vinyl-server#readme",
   "dependencies": {
-    "aws-sdk": "^2.23.0",
+    "aws-sdk": "^2.27.0",
     "babel-preset-stage-0": "^6.16.0",
     "bcrypt": "^1.0.2",
     "body-parser": "^1.15.2",

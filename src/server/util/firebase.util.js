@@ -14,7 +14,7 @@ const userRef = db.ref('/user');
 const userPropertiesRef = db.ref('/userProperties');
 
 const orderRef = db.ref('/order');
-const orderPropertiesRef = db.ref('/connectionProperties');
+const orderPropertiesRef = db.ref('/orderProperties');
 
 const nodeRef = db.ref('/node');
 const nodePropertiesRef = db.ref('/nodeProperties');
@@ -39,7 +39,7 @@ const refs = {
   order: {
     root: orderRef,
     properties: orderPropertiesRef,
-    nodeInfo: orderPropertiesRef.child('nodeInfo'),
+    itemInfo: orderPropertiesRef.child('itemInfo'),
     paymentDetail: orderPropertiesRef.child('paymentDetail'),
     calculateDetail: orderPropertiesRef.child('calculateDetail'),
     evalFromUser: orderPropertiesRef.child('evalFromUser'),
@@ -79,9 +79,6 @@ const defaultSchema = {
       firstApprovedAt: null,
       isSecondApproved: false,
       secondApprovedAt: null
-    },
-    phoneVerificationInfo: {
-      expiredAt: Date.now() + 120000
     }
   },
   order: {
@@ -91,6 +88,9 @@ const defaultSchema = {
       createdAt: Date.now(),
       realDeliveryPrice: null,
       isExpired: false
+    },
+    itemInfo:{
+
     },
     evalFromUser: {
       mark: 3,

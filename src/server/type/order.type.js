@@ -42,7 +42,7 @@ const GoodsType = new GraphQLObjectType({
   })
 });
 
-const ConnectionType = new GraphQLObjectType({
+const OrderType = new GraphQLObjectType({
   name: 'Connection',
   description: 'OrderType of User.',
   fields: () => ({
@@ -59,4 +59,4 @@ const ConnectionType = new GraphQLObjectType({
   })
 });
 
-export default ConnectionType;
+export default OrderType;
