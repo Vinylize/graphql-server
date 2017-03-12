@@ -1,5 +1,8 @@
 import jwt from 'jsonwebtoken';
-import firebase from './firebase.util';
+import {
+    refs,
+    admin
+} from './firebase.util';
 const JWT_CREATE_OPTION = { algorithm: 'HS256' };
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
@@ -13,7 +16,7 @@ export default {
       return next();
     }
     if (req.headers.authorization) {
-      return firebase.admin.auth().verifyIdToken(req.headers.authorization)
+      return admin.auth().verifyIdToken(req.headers.authorization)
         .then((decodedToken) => {
           req.user = decodedToken;
           return next();
