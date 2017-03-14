@@ -108,6 +108,7 @@ const userRequestPhoneVerifiactionMutation = {
           code,
           expiredAt: Date.now() + (120 * 1000)
         })
+          .then(() => refs.user.root.child(user.uid).child('phoneNumber').set(phoneNumber))
           .then(() => resolve({result: 'OK'}))
           .catch(reject);
       }

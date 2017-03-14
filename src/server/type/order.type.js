@@ -52,7 +52,7 @@ const OrderType = new GraphQLObjectType({
     category: { type: GraphQLInt },
     subCategory: { type: GraphQLInt },
     resultImage: { type: GraphQLString },
-    openedAt: { type: GraphQLDate },
+    openedAt: { type: GraphQLInt },
     isExpired: { type: GraphQLBoolean },
     reward: { type: RewardType },
     goods: { type: new GraphQLList(GoodsType) }

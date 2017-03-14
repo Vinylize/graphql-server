@@ -18,7 +18,7 @@ const NodeType = new GraphQLObjectType({
     connection: { type: OrderType},
     category: { type: GraphQLInt },
     contents: { type: GraphQLString },
-    createdAt: { type: GraphQLDate }
+    createdAt: { type: GraphQLInt }
   })
 });
 

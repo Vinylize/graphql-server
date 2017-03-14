@@ -50,7 +50,7 @@ const userCreateOrderMutation = {
         return newRef.set({
           id: newOrderKey,
           ordererId: user.uid,
-            // TODO : define order's category( d & r )
+            // TODO : define order's category( delivery & runner )
           dCategory,
           rCategory,
           currency,

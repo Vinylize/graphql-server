@@ -18,7 +18,7 @@ const UserQualificationType = new GraphQLObjectType({
   description: 'Type of properties of port.',
   fields: () => ({
     isAgreed: { type: GraphQLBoolean },
-    agreedAt: { type: GraphQLDate }
+    agreedAt: { type: GraphQLInt }
   })
 });
 
@@ -27,11 +27,11 @@ const RunnerQualificationType = new GraphQLObjectType({
   description: 'Type of properties of ship.',
   fields: () => ({
     isAgreed: { type: GraphQLBoolean },
-    agreedAt: { type: GraphQLDate },
+    agreedAt: { type: GraphQLInt },
     isFirstApproved: { type: GraphQLBoolean },
-    firstApprovedAt: { type: GraphQLDate },
+    firstApprovedAt: { type: GraphQLInt },
     isSecondApproved: { type: GraphQLBoolean },
-    secondApprovedAt: { type: GraphQLDate }
+    secondApprovedAt: { type: GraphQLInt }
   })
 });
 
@@ -69,10 +69,10 @@ const AddressType = new GraphQLObjectType({
   description: 'addressType of user.',
   fields: () => ({
     name: { type: GraphQLBoolean },
-    mainAddress: { type: GraphQLDate },
-    subAddress: { type: GraphQLDate },
-    lat: { type: GraphQLDate },
-    lon: { type: GraphQLDate }
+    mainAddress: { type: GraphQLInt },
+    subAddress: { type: GraphQLInt },
+    lat: { type: GraphQLInt },
+    lon: { type: GraphQLInt }
   })
 });
 
@@ -81,7 +81,7 @@ const PhoneVerificationInfoType = new GraphQLObjectType({
   description: 'phoneVerificationInfoType of user.',
   fields: () => ({
     code: { type: GraphQLInt },
-    expiredAt: { type: GraphQLDate }
+    expiredAt: { type: GraphQLInt }
   })
 });
 
@@ -90,9 +90,9 @@ const HelpType = new GraphQLObjectType({
   description: 'helpType of user.',
   fields: () => ({
     comment: { type: GraphQLString },
-    createdAt: { type: GraphQLDate },
+    createdAt: { type: GraphQLInt },
     answer: { type: GraphQLString },
-    answerdAt: { type: GraphQLDate }
+    answerdAt: { type: GraphQLInt }
   })
 });
 
@@ -103,10 +103,10 @@ const UserType = new GraphQLObjectType({
     id: { type: GraphQLString },
     email: { type: GraphQLString },
     name: { type: GraphQLString },
-    createdAt: { type: GraphQLString },
+    createdAt: { type: GraphQLInt },
     phoneNumber: { type: GraphQLString },
     isPhoneValid: { type: GraphQLBoolean },
-    rating: { type: GraphQLInt },
+    rating: { type: GraphQLFloat },
     profileImageUrl: { type: GraphQLString },
     identificationImageUrl: { type: GraphQLString },
     coordinate: {
