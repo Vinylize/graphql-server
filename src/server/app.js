@@ -1,16 +1,20 @@
-import { GraphQLSchema, GraphQLObjectType } from 'graphql';
-
+import {
+  GraphQLSchema,
+  GraphQLObjectType
+} from 'graphql';
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import multer from 'multer';
 import logger from 'winston';
 
 import authUtil from './util/auth.util';
+
 import UserMutation from './mutation/user.mutation';
 import OrderMutation from './mutation/order.mutation';
 import NodeMutation from './mutation/node.mutation';
 import PartnerMutation from './mutation/partner.mutation';
 import UploadMutation from './mutation/upload.mutation';
+import PushMutation from './mutation/push.mutation';
 
 import ViewerQuery from './query/viewer.query';
 import UploadQuery from './query/upload.query';
@@ -35,7 +39,8 @@ const schema = new GraphQLSchema({
       ...UserMutation,
       ...OrderMutation,
       ...NodeMutation,
-      ...PartnerMutation
+      ...PartnerMutation,
+      ...PushMutation
     })
   })
 });
