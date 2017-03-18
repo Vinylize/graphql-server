@@ -7,13 +7,13 @@ const phoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilioClient = twilio(accountSid, suthToken);
 
 const bluehouseCredential =
-  'Basic ' +
-  new Buffer(process.env.BLUEHOUSE_APP_ID + ':' + process.env.BLUEHOUSE_API_KEY).toString('base64');
+  `Basic ${
+  new Buffer(`${process.env.BLUEHOUSE_APP_ID}:${process.env.BLUEHOUSE_API_KEY}`).toString('base64')}`;
 
 export default {
   sendTwilioMessage(to, content) {
     twilioClient.sendTwilioMessage({
-      to: to,
+      to,
       from: phoneNumber,
       body: content
     });
@@ -25,7 +25,7 @@ export default {
     const data = {
       sender: process.env.BLUEHOUSE_SENDER,
       receivers: [to],
-      content: content
+      content
     };
     const body = JSON.stringify(data);
     const bluehouseOptions = {
@@ -42,20 +42,20 @@ export default {
     const req = https.request(bluehouseOptions, (res) => {
       let responseBody = '';
       res.on('data', (d) => {
-        responseBody = responseBody + d;
+        responseBody += d;
       });
-      res.on('end', (d) => {
-        if (res.statusCode == 200) {
-          // console.log(JSON.parse(responseBody));
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          console.log(JSON.parse(responseBody));
         } else {
-          // console.log(responseBody);
+          console.log(responseBody);
         }
       });
     });
     req.write(body);
     req.end();
-    req.on('error', function (err) {
-      // console.error(err);
+    req.on('error', (err) => {
+      console.error(err);
     });
   },
 

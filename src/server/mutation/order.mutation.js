@@ -38,40 +38,36 @@ const userCreateOrderMutation = {
   outputFields: {
     result: {
       type: GraphQLString,
-      resolve: (payload) => payload.result
+      resolve: payload => payload.result
     }
   },
-  mutateAndGetPayload: ({ items, dCategory, rCategory, currency }, { user }) => {
-    return new Promise((resolve, reject) => {
-      if (user) {
+  mutateAndGetPayload: ({ items, dCategory, rCategory, currency }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
         // Create new order root in firebase.
-        const newRef = refs.order.root.push();
-        const newOrderKey = newRef.key;
-        return newRef.set({
-          id: newOrderKey,
-          ordererId: user.uid,
+      const newRef = refs.order.root.push();
+      const newOrderKey = newRef.key;
+      return newRef.set({
+        id: newOrderKey,
+        ordererId: user.uid,
             // TODO : define order's category( delivery & runner )
-          dCategory,
-          rCategory,
-          currency,
+        dCategory,
+        rCategory,
+        currency,
             // TODO : impl price calculation logic.
-          estimatedDeliveryPrice: 10000,
-          ...defaultSchema.order.root
-        })
+        estimatedDeliveryPrice: 10000,
+        ...defaultSchema.order.root
+      })
         // Create new orderPriperties in firebase.
+          .then(() => refs.order.itemInfo.child(newOrderKey).set({
+            ...items
+          }))
           .then(() => {
-            return refs.order.itemInfo.child(newOrderKey).set({
-              ...items
-            });
-          })
-          .then(()=> {
-            resolve({result: newOrderKey});
+            resolve({ result: newOrderKey });
           })
           .catch(reject);
-      }
-      return reject('This mutation needs accessToken.');
-    });
-  }
+    }
+    return reject('This mutation needs accessToken.');
+  })
 };
 
 const runnerCatchOrderMutation = {
@@ -82,14 +78,13 @@ const runnerCatchOrderMutation = {
   outputFields: {
     result: {
       type: GraphQLString,
-      resolve: (payload) => payload.result
+      resolve: payload => payload.result
     }
   },
-  mutateAndGetPayload: ({ orderId }, {user}) => {
-    return new Promise((resolve, reject) => {
-      if (user) {
+  mutateAndGetPayload: ({ orderId }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
         // / TODO : Maybe transaction issue will be occurred.
-        return refs.order.root.child(orderId).once('value')
+      return refs.order.root.child(orderId).once('value')
           .then((orderSnap) => {
             const order = orderSnap.val();
             if (!order) {
@@ -107,12 +102,11 @@ const runnerCatchOrderMutation = {
             return refs.order.root.child(orderId).child('runnerId').set(user.uid);
           })
           .then(() => {
-            resolve({result: 'OK'});
+            resolve({ result: 'OK' });
           });
-      }
-      return reject('This mutation needs accessToken.');
-    });
-  }
+    }
+    return reject('This mutation needs accessToken.');
+  })
 };
 
 const OrderMutation = {

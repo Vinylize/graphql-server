@@ -1,6 +1,4 @@
 import {
-  GraphQLFloat,
-  GraphQLInt,
   GraphQLString,
   GraphQLNonNull
 } from 'graphql';
@@ -14,23 +12,19 @@ const sendPushMutation = {
   name: 'sendPushTest',
   description: 'sendPush',
   inputFields: {
-    registrationToken: {type: new GraphQLNonNull(GraphQLString)},
+    registrationToken: { type: new GraphQLNonNull(GraphQLString) },
   },
   outputFields: {
-    result: { type: GraphQLString, resolve: (payload) => payload.result }
+    result: { type: GraphQLString, resolve: payload => payload.result }
   },
-  mutateAndGetPayload: ({ registrationToken }, { user }) => {
-    return new Promise((resolve, reject) => {
+  mutateAndGetPayload: ({ registrationToken }) => new Promise((resolve, reject) =>
       // if (user) {
-      return messagingUtil.sendPush(registrationToken)
-          .then(() => {
-            return resolve({result: 'OK'});
-          })
-        .catch(reject);
+       messagingUtil.sendPush(registrationToken)
+          .then(() => resolve({ result: 'OK' }))
+        .catch(reject)
       // }
       // return reject('This mutation needs accessToken.');
-    });
-  }
+    )
 };
 
 const pushMutation = {

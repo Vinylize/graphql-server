@@ -66,7 +66,6 @@ const defaultSchema = {
       isPhoneValid: false,
       phoneNumber: null,
       rating: 5,
-      createdAt: Date.now()
     },
     orderQualification: {
       isAgreed: false,
@@ -89,7 +88,7 @@ const defaultSchema = {
       realDeliveryPrice: null,
       isExpired: false
     },
-    itemInfo:{
+    itemInfo: {
 
     },
     evalFromUser: {

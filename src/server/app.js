@@ -51,7 +51,7 @@ app.post(
     graphqlHTTP((request) => {
       const startTime = Date.now();
       return {
-        schema: schema,
+        schema,
         graphiql: true,
         rootValue: { request },
         extensions(ext) {
@@ -88,12 +88,10 @@ app.post(
     '/graphql/upload',
     authUtil.apiProtector,
     multer({ storage }).single('file'),
-    graphqlHTTP((request) => {
-      return {
-        schema: uploadSchema,
-        rootValue: { request }
-      };
-    }));
+    graphqlHTTP(request => ({
+      schema: uploadSchema,
+      rootValue: { request }
+    })));
 
 app.listen(PORT, () => {
   logger.info(`Vinyl api server listening on port ${PORT}!`);

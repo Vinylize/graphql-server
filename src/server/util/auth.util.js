@@ -6,19 +6,18 @@ const tempUid = 'cFfM2SbiZYVNyoKPxkBoWgjWBgv1';
 
 export default {
   apiProtector(req, res, next) {
-    if (req.headers.authorization === 'TT') {
-      req.user = { uid: tempUid, warn: 'this is tempUid.'};
+    const r = req;
+    if (r.headers.authorization === 'TT') {
+      r.user = { uid: tempUid, warn: 'this is tempUid.' };
       return next();
     }
-    if (req.headers.authorization) {
-      return admin.auth().verifyIdToken(req.headers.authorization)
+    if (r.headers.authorization) {
+      return admin.auth().verifyIdToken(r.headers.authorization)
         .then((decodedToken) => {
-          req.user = decodedToken;
+          r.user = decodedToken;
           return next();
         })
-        .catch((error) => {
-          return res.status(401).json({err: error.message});
-        });
+        .catch(error => res.status(401).json({ err: error.message }));
     }
     return next();
   }

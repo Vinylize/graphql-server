@@ -1,5 +1,5 @@
 export default class PaymentUtil {
-  static showMeTheMoney(from, body) {
+  static showMeTheMoney() {
 
   }
 
@@ -11,8 +11,3 @@ export default class PaymentUtil {
 
   }
 }
-
-function isAvaliableToPay() {
-
-}
-

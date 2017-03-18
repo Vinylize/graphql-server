@@ -7,12 +7,6 @@ import {
   GraphQLBoolean
 } from 'graphql';
 
-import GraphQLDate from 'graphql-date';
-
-import {
-  refs
-} from '../util/firebase.util';
-
 import UserType from './user.type';
 
 const RewardType = new GraphQLObjectType({
@@ -28,7 +22,7 @@ const GoodsType = new GraphQLObjectType({
   name: 'Goods',
   description: 'GoodsType of Connection.',
   fields: () => ({
-    name: {type: GraphQLString},
+    name: { type: GraphQLString },
     category: { type: GraphQLInt },
     dimension: { type: GraphQLString },
     weight: { type: GraphQLInt },

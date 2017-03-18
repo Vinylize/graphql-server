@@ -6,12 +6,10 @@ import {
   GraphQLObjectType,
   GraphQLString
 } from 'graphql';
-import GraphQLDate from 'graphql-date';
 
 import {
   refs
 } from '../util/firebase.util';
-import OrderType from './order.type';
 
 const UserQualificationType = new GraphQLObjectType({
   name: 'userQualification',
@@ -48,7 +46,7 @@ const UserPaymentInfoType = new GraphQLObjectType({
   name: 'userPaymentInfo',
   description: 'UserPaymentInfoType of user.',
   fields: () => ({
-    type: { type: GraphQLInt},
+    type: { type: GraphQLInt },
     number: { type: GraphQLString },
     provider: { type: GraphQLString }
   })
@@ -58,7 +56,7 @@ const RunnerPaymentInfoType = new GraphQLObjectType({
   name: 'runnerPaymentInfo',
   description: 'RunnerPaymentInfoType of user.',
   fields: () => ({
-    type: { type: GraphQLInt},
+    type: { type: GraphQLInt },
     number: { type: GraphQLString },
     provider: { type: GraphQLString }
   })
@@ -96,6 +94,9 @@ const HelpType = new GraphQLObjectType({
   })
 });
 
+// How to use resolve.
+// resolve: () => (source, { user })
+
 const UserType = new GraphQLObjectType({
   name: 'user',
   description: 'UserType of Vinyl.',
@@ -111,94 +112,79 @@ const UserType = new GraphQLObjectType({
     identificationImageUrl: { type: GraphQLString },
     coordinate: {
       type: CoordinateType,
-      resolve: (source) => {
-        return new Promise((resolve, reject) => {
-          refs.user.coordinate.child(source.id).once('value')
-            .then((snap) => resolve(snap.val()))
+      resolve: source => new Promise((resolve, reject) => {
+        refs.user.coordinate.child(source.id).once('value')
+            .then(snap => resolve(snap.val()))
             .catch(reject);
-        });
-      }
+      })
     },
     userQualification: {
       type: UserQualificationType,
-      resolve: (source, args, { user }) => {
-        return new Promise((resolve, reject) => {
-          refs.user.userQualification.child(source.id).once('value')
-            .then((snap) => resolve(snap.val()))
+      resolve: source => new Promise((resolve, reject) => {
+        refs.user.userQualification.child(source.id).once('value')
+            .then(snap => resolve(snap.val()))
             .catch(reject);
-        });
-      }
+      })
     },
     RunnerQualification: {
       type: RunnerQualificationType,
-      resolve: (source, args, { user }) => {
-        return new Promise((resolve, reject) => {
-          refs.user.runnerQualification.child(source.id).once('value')
-            .then((snap) => resolve(snap.val()))
+      resolve: source => new Promise((resolve, reject) => {
+        refs.user.runnerQualification.child(source.id).once('value')
+            .then(snap => resolve(snap.val()))
             .catch(reject);
-        });
-      }
+      })
     },
     UserPaymentInfo: {
       type: new GraphQLList(UserPaymentInfoType),
-      resolve: (source, args, { user }) => {
-        return new Promise((resolve, reject) => {
-          refs.user.userPaymentInfo.child(source.id).once('value')
-            .then((snap) => resolve(snap.val()))
+      resolve: source => new Promise((resolve, reject) => {
+        refs.user.userPaymentInfo.child(source.id).once('value')
+            .then(snap => resolve(snap.val()))
             .catch(reject);
-        });
-      }
+      })
     },
     RunnerPaymentInfo: {
       type: new GraphQLList(RunnerPaymentInfoType),
-      resolve: (source, args, { user }) => {
-        return new Promise((resolve, reject) => {
-          refs.user.runnerPaymentInfo.child(source.id).once('value')
-            .then((snap) => resolve(snap.val()))
+      resolve: source => new Promise((resolve, reject) => {
+        refs.user.runnerPaymentInfo.child(source.id).once('value')
+            .then(snap => resolve(snap.val()))
             .catch(reject);
-        });
-      }
+      })
     },
     address: {
       type: new GraphQLList(AddressType),
-      resolve: (source, args, { user }) => {
-        return new Promise((resolve, reject) => {
-          refs.user.address.child(source.id).once('value')
-            .then((snap) => resolve(snap.val()))
+      resolve: source => new Promise((resolve, reject) => {
+        refs.user.address.child(source.id).once('value')
+            .then(snap => resolve(snap.val()))
             .catch(reject);
-        });
-      }
+      })
     },
     phoneVerificationInfo: {
       type: PhoneVerificationInfoType,
-      resolve: (source, args, { user }) => {
-        return new Promise((resolve, reject) => {
-          refs.user.phoneVerificationInfo.child(source.id).once('value')
-            .then((snap) => resolve(snap.val()))
+      resolve: source => new Promise((resolve, reject) => {
+        refs.user.phoneVerificationInfo.child(source.id).once('value')
+            .then(snap => resolve(snap.val()))
             .catch(reject);
-        });
-      }
+      })
     },
     help: {
       type: new GraphQLList(HelpType),
-      resolve: (source, args, { user }) => {
-        return new Promise((resolve, reject) => {
-          refs.user.help.child(source.id).once('value')
-            .then((snap) => resolve(snap.val()))
+      resolve: source => new Promise((resolve, reject) => {
+        refs.user.help.child(source.id).once('value')
+            .then(snap => resolve(snap.val()))
             .catch(reject);
-        });
-      }
+      })
     },
-    ship: {
-      type: new GraphQLList(OrderType),
-      resolve: (source, args, { user }) => {
-      }
-    },
-    port: {
-      type: new GraphQLList(OrderType),
-      resolve: (source, args, { user }) => {
-      }
-    },
+    // TODO: Implement another user type.
+    // ship: {
+    //   type: new GraphQLList(OrderType),
+    //   resolve: (source) => {
+    //   }
+    // },
+    // port: {
+    //   type: new GraphQLList(OrderType),
+    //   resolve: (source) => {
+    //   }
+    // },
   })
 });
 

@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import {
   GraphQLFloat,
   GraphQLInt,
@@ -16,7 +17,6 @@ import {
 
 import smsUtil from '../util/sms.util';
 
-import bcrypt from 'bcrypt';
 
 const saltRounds = 10;
 
@@ -24,112 +24,100 @@ const createUserMutation = {
   name: 'createUser',
   description: 'Register User to firebase via yetta server.',
   inputFields: {
-    email: {type: new GraphQLNonNull(GraphQLString)},
-    name: {type: new GraphQLNonNull(GraphQLString)},
-    password: {type: new GraphQLNonNull(GraphQLString)}
+    email: { type: new GraphQLNonNull(GraphQLString) },
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    password: { type: new GraphQLNonNull(GraphQLString) }
   },
   outputFields: {
     result: {
       type: GraphQLString,
-      resolve: (payload) => payload.result
+      resolve: payload => payload.result
     }
   },
-  mutateAndGetPayload: ({email, password, name}) => {
-    return new Promise((resolve, reject) => {
-      admin.auth().createUser({
-        email: email,
-        emailVerified: false,
-        password: password,
-        displayName: name,
-        disabled: false
-      })
-        .then((createdUser) => {
-          return refs.user.root.child(createdUser.uid).set({
-            id: createdUser.uid,
-            email: email,
-            password: bcrypt.hashSync(password, saltRounds),
-            name: name,
-            ...defaultSchema.user.root
-          })
-            .then(() => {
-              return refs.user.userQualification.child(createdUser.uid).set({
-                ...defaultSchema.user.orderQualification
-              });
-            })
-            .then(() => {
-              return refs.user.runnerQualification.child(createdUser.uid).set({
-                ...defaultSchema.user.runnerQualification
-              });
-            });
+  mutateAndGetPayload: ({ email, password, name }) => new Promise((resolve, reject) => {
+    admin.auth().createUser({
+      email,
+      emailVerified: false,
+      password,
+      displayName: name,
+      disabled: false
+    })
+        .then(createdUser => refs.user.root.child(createdUser.uid).set({
+          id: createdUser.uid,
+          email,
+          password: bcrypt.hashSync(password, saltRounds),
+          name,
+          createdAt: Date.now(),
+          ...defaultSchema.user.root
         })
-        .then(() => resolve({result: 'OK'}))
+            .then(() => refs.user.userQualification.child(createdUser.uid).set({
+              ...defaultSchema.user.orderQualification
+            }))
+            .then(() => refs.user.runnerQualification.child(createdUser.uid).set({
+              ...defaultSchema.user.runnerQualification
+            })))
+        .then(() => resolve({ result: 'OK' }))
         .catch(reject);
-    });
-  }
+  })
 };
 
 const userUpdateCoordinateMutation = {
   name: 'userUpdateCoordinate',
   description: '',
   inputFields: {
-    lat: {type: new GraphQLNonNull(GraphQLFloat)},
-    lon: {type: new GraphQLNonNull(GraphQLFloat)}
+    lat: { type: new GraphQLNonNull(GraphQLFloat) },
+    lon: { type: new GraphQLNonNull(GraphQLFloat) }
   },
   outputFields: {
-    result: { type: GraphQLString, resolve: (payload) => payload.result }
+    result: { type: GraphQLString, resolve: payload => payload.result }
   },
-  mutateAndGetPayload: (args, { user }) => {
-    return new Promise((resolve, reject) => {
-      if (user) {
-        return refs.user.coordinate.child(user.uid).set(args)
-          .then(() => resolve({result: 'OK'}))
+  mutateAndGetPayload: (args, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return refs.user.coordinate.child(user.uid).set(args)
+          .then(() => resolve({ result: 'OK' }))
           .catch(reject);
-      }
-      return reject('This mutation needs accessToken.');
-    });
-  }
+    }
+    return reject('This mutation needs accessToken.');
+  })
 };
 
 const userRequestPhoneVerifiactionMutation = {
   name: 'userRequestPhoneVerification',
   description: 'Send verification message to user.',
   inputFields: {
-    phoneNumber: {type: new GraphQLNonNull(GraphQLString)}
+    phoneNumber: { type: new GraphQLNonNull(GraphQLString) }
   },
   outputFields: {
-    result: { type: GraphQLString, resolve: (payload) => payload.result }
+    result: { type: GraphQLString, resolve: payload => payload.result }
   },
-  mutateAndGetPayload: ({ phoneNumber }, { user }) => {
-    return new Promise((resolve, reject) => {
-      if (user) {
-        const code = smsUtil.getRandomCode();
-        smsUtil.sendVerificationMessage(phoneNumber, code);
-        return refs.user.phoneVerificationInfo.child(user.uid).set({
-          code,
-          expiredAt: Date.now() + (120 * 1000)
-        })
+  mutateAndGetPayload: ({ phoneNumber }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      const code = smsUtil.getRandomCode();
+      smsUtil.sendVerificationMessage(phoneNumber, code);
+      return refs.user.phoneVerificationInfo.child(user.uid).set({
+        code,
+        expiredAt: Date.now() + (120 * 1000)
+      })
           .then(() => refs.user.root.child(user.uid).child('phoneNumber').set(phoneNumber))
-          .then(() => resolve({result: 'OK'}))
+          .then(() => resolve({ result: 'OK' }))
           .catch(reject);
-      }
-      return reject('This mutation needs accessToken');
-    });
-  }
+    }
+    return reject('This mutation needs accessToken');
+  })
 };
 
 const userResponsePhoneVerificationMutation = {
   name: 'userResponsePhoneVerification',
   description: 'Verification of phoneNumber.',
   inputFields: {
-    code: {type: new GraphQLNonNull(GraphQLInt)}
+    code: { type: new GraphQLNonNull(GraphQLInt) }
   },
   outputFields: {
-    result: { type: GraphQLString, resolve: (payload) => payload.result }
+    result: { type: GraphQLString, resolve: payload => payload.result }
   },
-  mutateAndGetPayload: ({ code }, { user }) => {
-    return new Promise((resolve, reject) => {
-      if (user) {
-        return refs.user.phoneVerificationInfo.child(user.uid).once('value')
+  mutateAndGetPayload: ({ code }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return refs.user.phoneVerificationInfo.child(user.uid).once('value')
           .then((snap) => {
             if (snap.val().expiredAt < Date.now()) {
               // top priority
@@ -141,12 +129,11 @@ const userResponsePhoneVerificationMutation = {
             return null;
           })
           .then(() => refs.user.root.child(user.uid).child('isPhoneValid').set(true))
-          .then(() => resolve({ result: 'OK'}))
+          .then(() => resolve({ result: 'OK' }))
           .catch(reject);
-      }
-      return reject('This mutation needs accessToken.');
-    });
-  }
+    }
+    return reject('This mutation needs accessToken.');
+  })
 };
 
 const UserMutation = {

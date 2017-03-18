@@ -6,14 +6,14 @@ const payload = {
   notification: {
     title: 'Notification from Yetta',
     body: 'This is Yetta server.',
-    click_action: "message"
+    click_action: 'message'
   },
   data: {
-    user: "tempUser34142413214343",
+    user: 'tempUser34142413214343',
   }
 };
 
-var options = {
+const options = {
   priority: 'high',
   content_available: true,
   // priority: 'normal',
@@ -23,15 +23,13 @@ var options = {
 };
 
 
-const sendPush = (registrationToken) => {
-  return admin.messaging().sendToDevice(registrationToken, payload, options)
-    .then(function (response) {
+const sendPush = registrationToken => admin.messaging().sendToDevice(registrationToken, payload, options)
+    .then((response) => {
       console.log('Successfully sent message:', response);
     })
-    .catch(function (error) {
+    .catch((error) => {
       console.log('Error sending message:', error);
     });
-};
 export default {
   sendPush
 };

@@ -1,14 +1,9 @@
 import {
   GraphQLString,
-  GraphQLInt,
-  GraphQLNonNull
 } from 'graphql';
 import {
   mutationWithClientMutationId
 } from 'graphql-relay';
-
-import UserType from '../type/user.type';
-import firebase from '../util/firebase.util';
 
 const NodeMutation = {
   createNode: mutationWithClientMutationId({
@@ -17,10 +12,10 @@ const NodeMutation = {
     outputFields: {
       result: {
         type: GraphQLString,
-        resolve: (payload) => payload.result
+        resolve: payload => payload.result
       }
     },
-    mutateAndGetPayload: ({}) => {
+    mutateAndGetPayload: () => {
     }
   })
 };
