@@ -31,12 +31,10 @@ gulp.task('prod', ['build'], () => {
 });
 
 
-gulp.task('build', ['clean'], () => {
-  return gulp.src(SOURCE.ALL)
+gulp.task('build', ['clean'], () => gulp.src(SOURCE.ALL)
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('dist'));
-});
+    .pipe(gulp.dest('dist')));
 
 gulp.task('clean', () => rimraf.sync(SOURCE.DIST));
