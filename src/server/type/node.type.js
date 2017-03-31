@@ -9,7 +9,7 @@ import OrderType from './order.type';
 
 const NodeType = new GraphQLObjectType({
   name: 'node',
-  description: 'NodeType of Recbook',
+  description: 'NodeType of Yetta',
   fields: () => ({
     id: { type: GraphQLString },
     reporter: { type: UserType },

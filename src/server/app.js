@@ -22,6 +22,14 @@ import UploadQuery from './query/upload.query';
 const app = express();
 const PORT = process.env.PORT;
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:3000');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With,authorization,content-type');
+  res.header('Access-Control-Allow-Methods', 'POST');
+  next();
+});
+
 // General Endpoint
 
 const schema = new GraphQLSchema({
@@ -40,7 +48,7 @@ const schema = new GraphQLSchema({
       ...OrderMutation,
       ...NodeMutation,
       ...PartnerMutation,
-      ...PushMutation
+      ...PushMutation,
     })
   })
 });
@@ -52,7 +60,6 @@ app.post(
       const startTime = Date.now();
       return {
         schema,
-        graphiql: true,
         rootValue: { request },
         extensions(ext) {
       // TODO : Find why `logger.debug(ext.result)` doesn't work on this part.
@@ -88,10 +95,19 @@ app.post(
     '/graphql/upload',
     authUtil.apiProtector,
     multer({ storage }).single('file'),
-    graphqlHTTP(request => ({
-      schema: uploadSchema,
-      rootValue: { request }
-    })));
+    graphqlHTTP((request) => {
+      const startTime = Date.now();
+      return {
+        schema: uploadSchema,
+        rootValue: { request },
+        extensions(ext) {
+        // TODO : Find why `logger.debug(ext.result)` doesn't work on this part.
+        // logger.debug(ext.result);
+          console.log(ext.result);
+          return { runTime: `${Date.now() - startTime}ms` };
+        }
+      };
+    }));
 
 app.listen(PORT, () => {
   logger.info(`Vinyl api server listening on port ${PORT}!`);

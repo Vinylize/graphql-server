@@ -1,16 +1,24 @@
 import {
-  GraphQLString
+  GraphQLString,
+  GraphQLNonNull
 } from 'graphql';
 import {
   mutationWithClientMutationId
 } from 'graphql-relay';
 
-// import {
-//   refs
-// } from '../util/firebase.util';
+import {
+  refs
+} from '../util/firebase.util';
+
+import {
+  s3BucketName,
+  s3,
+  s3BaseUrl,
+  s3Keys,
+} from '../util/s3.util';
 
 const userUploadProfileImageMutation = {
-  name: 'userUpdateProfileImage',
+  name: 'userUploadProfileImage',
   description: '',
   inputFields: {},
   outputFields: {
@@ -19,6 +27,7 @@ const userUploadProfileImageMutation = {
   mutateAndGetPayload: (args, { user, file }) => new Promise((resolve, reject) => {
     if (user) {
       if (file) {
+        console.log(file);
         console.log('upload file to s3 & firebase here.');
       }
       return reject('invalid or no file.');
@@ -66,16 +75,34 @@ const runnerUploadReciptImageMutation = {
 const uploadNodeImageMutation = {
   name: 'uploadNodeImage',
   description: '',
-  inputFields: {},
+  inputFields: {
+    nodeId: { type: new GraphQLNonNull(GraphQLString) }
+  },
   outputFields: {
     imageUrl: { type: GraphQLString, resolve: payload => payload.imageUrl }
   },
-  mutateAndGetPayload: (args, { user, file }) => new Promise((resolve, reject) => {
+  mutateAndGetPayload: ({ nodeId }, { user, file }) => new Promise((resolve, reject) => {
     if (user) {
       if (file) {
-        console.log('upload file to s3 & firebase here.');
+        console.log(file);
+        const key = `${s3Keys.node}/${nodeId}.png`;
+        const params = {
+          Bucket: s3BucketName,
+          Key: key,
+          ACL: 'public-read',
+          Body: file.buffer
+        };
+
+        return s3.putObject(params, (err) => {
+          if (err) {
+            return reject(err);
+          }
+          const imageUrl = `${s3BaseUrl}${s3BucketName}/${key}`;
+          return refs.node.root.child(nodeId).child('imageUrl').set(imageUrl)
+            .then(() => resolve({ imageUrl }));
+        });
       }
-      return reject('invalid or no file.');
+      return reject('There is no image.');
     }
     return reject('This mutation needs accessToken.');
   })
@@ -99,13 +126,12 @@ const uploadNodeItemImageMutation = {
   })
 };
 
-
 const UploadMutation = {
   userUploadProfileImage: mutationWithClientMutationId(userUploadProfileImageMutation),
   userUploadIdImage: mutationWithClientMutationId(userUploadIdImageMutation),
   runnerUploadReciptImage: mutationWithClientMutationId(runnerUploadReciptImageMutation),
-  uploadNodeImageMutation: mutationWithClientMutationId(uploadNodeImageMutation),
-  uploadNodeItemImageMutation: mutationWithClientMutationId(uploadNodeItemImageMutation)
+  uploadNodeImage: mutationWithClientMutationId(uploadNodeImageMutation),
+  uploadNodeItemImage: mutationWithClientMutationId(uploadNodeItemImageMutation)
 };
 
 export default UploadMutation;

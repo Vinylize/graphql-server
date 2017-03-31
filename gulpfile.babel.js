@@ -30,7 +30,6 @@ gulp.task('prod', ['build'], () => {
   });
 });
 
-
 gulp.task('build', ['clean'], () => gulp.src(SOURCE.ALL)
     .pipe(sourcemaps.init())
     .pipe(babel())

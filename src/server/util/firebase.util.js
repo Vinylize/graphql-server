@@ -48,7 +48,8 @@ const refs = {
   node: {
     root: nodeRef,
     properties: nodePropertiesRef,
-    items: nodePropertiesRef.child('items')
+    items: nodePropertiesRef.child('items'),
+    coordinate: nodePropertiesRef.child('coordinate')
   },
   partner: {
     root: partnerRef,
@@ -84,7 +85,6 @@ const defaultSchema = {
     root: {
       runnerId: null,
       receiptImage: null,
-      createdAt: Date.now(),
       realDeliveryPrice: null,
       isExpired: false
     },
@@ -102,7 +102,7 @@ const defaultSchema = {
   },
   node: {
     root: {
-      createdAt: Date.now()
+      like: 0
     },
     items: {
       itemImageUrl: null
@@ -110,7 +110,6 @@ const defaultSchema = {
   },
   partner: {
     root: {
-      createdAt: Date.now()
     },
     qualification: {
       isAgreed: false,

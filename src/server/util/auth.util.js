@@ -2,7 +2,7 @@ import {
     admin
 } from './firebase.util';
 
-const tempUid = 'cFfM2SbiZYVNyoKPxkBoWgjWBgv1';
+const tempUid = '3RGGOaMSjMhzkgbeK5nH5yUZNJo1';
 
 export default {
   apiProtector(req, res, next) {
