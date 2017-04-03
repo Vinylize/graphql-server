@@ -4,12 +4,19 @@ import {
   GraphQLInt,
   GraphQLList,
   GraphQLObjectType,
-  GraphQLString
+  GraphQLString,
+  GraphQLNonNull
 } from 'graphql';
+
+import NodeType from '../type/node.type';
 
 import {
   refs
 } from '../util/firebase.util';
+
+import {
+  nodeGeoFire,
+} from '../util/firebase.geofire.util';
 
 const UserQualificationType = new GraphQLObjectType({
   name: 'userQualification',
@@ -172,6 +179,42 @@ const UserType = new GraphQLObjectType({
         refs.user.help.child(source.id).once('value')
             .then(snap => resolve(snap.val()))
             .catch(reject);
+      })
+    },
+    node: {
+      type: new GraphQLList(NodeType),
+      args: {
+        lat: { type: new GraphQLNonNull(GraphQLFloat) },
+        lon: { type: new GraphQLNonNull(GraphQLFloat) },
+        radius: { type: new GraphQLNonNull(GraphQLFloat) },
+        category1: { type: GraphQLString },
+        category2: { type: GraphQLString }
+      },
+      resolve: (source, { lat, lon, radius, category1, category2 }) => new Promise((resolve) => {
+        const geoQuery = nodeGeoFire.query({
+          center: [lat, lon],
+          radius
+        });
+        const p = [];
+        geoQuery.on('key_entered', (key, location, distance) => {
+          p.push(new Promise(nResolve => refs.node.root.child(key)
+              .once('value')
+              .then(snap => nResolve({ ...snap.val(), distanceFromMe: distance }))));
+        });
+
+        geoQuery.on('ready', () => {
+          Promise.all(p).then((result) => {
+            if (!category1) {
+              return resolve(result);
+            }
+            const c1Result = result.filter(node => node.category1 === category1);
+            if (!category2) {
+              return resolve(c1Result);
+            }
+            return resolve(c1Result.filter(node => node.category2 === category2));
+          });
+          geoQuery.cancel();
+        });
       })
     },
     // TODO: Implement another user type.

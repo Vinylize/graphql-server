@@ -22,7 +22,6 @@ const options = {
   timeToLive: 60 * 60 * 24
 };
 
-
 const sendPush = registrationToken => admin.messaging().sendToDevice(registrationToken, payload, options)
     .then((response) => {
       console.log('Successfully sent message:', response);

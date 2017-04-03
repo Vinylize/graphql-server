@@ -27,6 +27,7 @@
     "express-graphql": "^0.6.1",
     "express-jwt": "^5.1.0",
     "firebase-admin": "^4.0.5",
+    "geofire": "^4.1.2",
     "graphql": "^0.8.2",
     "graphql-relay": "^0.4.4",
     "method-override": "^2.3.7",

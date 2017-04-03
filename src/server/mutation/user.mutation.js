@@ -15,6 +15,10 @@ import {
   refs
 } from '../util/firebase.util';
 
+import {
+  userGeoFire
+} from '../util/firebase.geofire.util';
+
 import smsUtil from '../util/sms.util';
 
 
@@ -71,11 +75,14 @@ const userUpdateCoordinateMutation = {
   outputFields: {
     result: { type: GraphQLString, resolve: payload => payload.result }
   },
-  mutateAndGetPayload: (args, { user }) => new Promise((resolve, reject) => {
+  mutateAndGetPayload: ({ lat, lon }, { user }) => new Promise((resolve, reject) => {
     if (user) {
-      return refs.user.coordinate.child(user.uid).set(args)
-          .then(() => resolve({ result: 'OK' }))
-          .catch(reject);
+      return userGeoFire.set(user.uid, [lat, lon])
+        .then(() => {
+          resolve({ result: 'OK' });
+        }, (error) => {
+          reject(error);
+        });
     }
     return reject('This mutation needs accessToken.');
   })
