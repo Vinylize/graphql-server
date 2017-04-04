@@ -199,7 +199,7 @@ const UserType = new GraphQLObjectType({
         geoQuery.on('key_entered', (key, location, distance) => {
           p.push(new Promise(nResolve => refs.node.root.child(key)
               .once('value')
-              .then(snap => nResolve({ ...snap.val(), distanceFromMe: distance }))));
+              .then(snap => nResolve({ ...snap.val(), distance }))));
         });
 
         geoQuery.on('ready', () => {

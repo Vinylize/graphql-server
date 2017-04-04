@@ -13,12 +13,12 @@ const NodeType = new GraphQLObjectType({
     name: { type: GraphQLString },
     phone: { type: GraphQLString },
     type: { type: GraphQLString },
-    address: { type: GraphQLString },
-    category1: { type: GraphQLString },
-    category2: { type: GraphQLString },
+    addr: { type: GraphQLString },
+    c1: { type: GraphQLString },
+    c2: { type: GraphQLString },
     like: { type: GraphQLInt },
-    createdAt: { type: GraphQLInt },
-    distanceFromMe: { type: GraphQLFloat }
+    cAt: { type: GraphQLInt },
+    distance: { type: GraphQLFloat }
   })
 });
 
