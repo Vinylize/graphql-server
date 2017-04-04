@@ -187,10 +187,10 @@ const UserType = new GraphQLObjectType({
         lat: { type: new GraphQLNonNull(GraphQLFloat) },
         lon: { type: new GraphQLNonNull(GraphQLFloat) },
         radius: { type: new GraphQLNonNull(GraphQLFloat) },
-        category1: { type: GraphQLString },
-        category2: { type: GraphQLString }
+        c1: { type: GraphQLString },
+        c2: { type: GraphQLString }
       },
-      resolve: (source, { lat, lon, radius, category1, category2 }) => new Promise((resolve) => {
+      resolve: (source, { lat, lon, radius, c1, c2 }) => new Promise((resolve) => {
         const geoQuery = nodeGeoFire.query({
           center: [lat, lon],
           radius
@@ -204,14 +204,14 @@ const UserType = new GraphQLObjectType({
 
         geoQuery.on('ready', () => {
           Promise.all(p).then((result) => {
-            if (!category1) {
+            if (!c1) {
               return resolve(result);
             }
-            const c1Result = result.filter(node => node.category1 === category1);
-            if (!category2) {
+            const c1Result = result.filter(node => node.c1 === c1);
+            if (!c2) {
               return resolve(c1Result);
             }
-            return resolve(c1Result.filter(node => node.category2 === category2));
+            return resolve(c1Result.filter(node => node.c2 === c2));
           });
           geoQuery.cancel();
         });
