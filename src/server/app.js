@@ -19,6 +19,13 @@ import PushMutation from './mutation/push.mutation';
 import ViewerQuery from './query/viewer.query';
 import UploadQuery from './query/upload.query';
 
+// test for braintree sdk
+import gateway from './util/payment/braintree.util';
+
+gateway.clientToken.generate({}, (err, response) => {
+  console.log(response);
+});
+
 const app = express();
 const PORT = process.env.PORT;
 
