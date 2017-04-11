@@ -4,35 +4,25 @@ import {
   GraphQLObjectType,
   GraphQLString,
   GraphQLInt,
-  GraphQLBoolean
+  GraphQLBoolean,
+  GraphQLInputObjectType,
 } from 'graphql';
 
 import UserType from './user.type';
 
-const RewardType = new GraphQLObjectType({
-  name: 'Reward',
-  description: 'RewardType of Connection.',
+const ItemType = new GraphQLInputObjectType({
+  name: 'Item',
   fields: () => ({
-    currency: { type: GraphQLString },
-    price: { type: GraphQLInt }
-  })
-});
-
-const GoodsType = new GraphQLObjectType({
-  name: 'Goods',
-  description: 'GoodsType of Connection.',
-  fields: () => ({
-    name: { type: GraphQLString },
-    category: { type: GraphQLInt },
-    dimension: { type: GraphQLString },
-    weight: { type: GraphQLInt },
-    valueCurrency: { type: GraphQLString },
-    valuePrice: { type: GraphQLInt },
-    stopoverName: { type: GraphQLString },
-    stopoverMainAddress: { type: GraphQLString },
-    stopoverSubAddress: { type: GraphQLString },
-    stopoverLat: { type: GraphQLFloat },
-    stopoverLon: { type: GraphQLFloat }
+    nId: { type: GraphQLString },
+    iId: { type: GraphQLString },
+    cnt: { type: GraphQLInt },
+    price: { type: GraphQLInt },
+    curr: { type: GraphQLInt },
+    pSAt: { type: GraphQLInt },
+    pFAt: { type: GraphQLInt },
+// if custom type
+    iName: { type: GraphQLString },
+    iPr: { type: GraphQLFloat }
   })
 });
 
@@ -41,15 +31,19 @@ const OrderType = new GraphQLObjectType({
   description: 'OrderType of User.',
   fields: () => ({
     id: { type: GraphQLString },
-    port: { type: UserType },
-    ship: { type: UserType },
-    category: { type: GraphQLInt },
-    subCategory: { type: GraphQLInt },
-    resultImage: { type: GraphQLString },
-    openedAt: { type: GraphQLInt },
-    isExpired: { type: GraphQLBoolean },
-    reward: { type: RewardType },
-    goods: { type: new GraphQLList(GoodsType) }
+    oId: { type: UserType },
+    rId: { type: UserType },
+    RSAt: { type: GraphQLInt },
+    dC: { type: GraphQLInt },
+    rC: { type: GraphQLInt },
+    rImg: { type: GraphQLString },
+
+    isExp: { type: GraphQLBoolean },
+    items: { type: new GraphQLList(ItemType) },
+    EDP: { type: GraphQLInt },
+    RDP: { type: GraphQLInt },
+    itemP: { type: GraphQLInt },
+    cAt: { type: GraphQLInt },
   })
 });
 

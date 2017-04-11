@@ -18,12 +18,14 @@ import {
 const ItemType = new GraphQLInputObjectType({
   name: 'Item',
   fields: () => ({
-    nodeId: { type: new GraphQLNonNull(GraphQLString) },
-    itemId: { type: new GraphQLNonNull(GraphQLString) },
-    amount: { type: new GraphQLNonNull(GraphQLInt) },
+    nId: { type: new GraphQLNonNull(GraphQLString) },
+    iId: { type: new GraphQLNonNull(GraphQLString) },
+    cnt: { type: new GraphQLNonNull(GraphQLInt) },
+    type: { type: new GraphQLNonNull(GraphQLInt) },
+    curr: { type: new GraphQLNonNull(GraphQLInt) },
+    price: { type: new GraphQLNonNull(GraphQLFloat) },
 // if custom type
-    itemName: { type: GraphQLString },
-    itemPrice: { type: GraphQLFloat }
+    iName: { type: GraphQLString },
   })
 });
 
@@ -31,9 +33,9 @@ const userCreateOrderMutation = {
   name: 'userCreateOrder',
   inputFields: {
     items: { type: new GraphQLNonNull(new GraphQLList(ItemType)) },
-    dCategory: { type: new GraphQLNonNull(GraphQLInt) },
-    rCategory: { type: new GraphQLNonNull(GraphQLInt) },
-    currency: { type: new GraphQLNonNull(GraphQLString) }
+    dC: { type: new GraphQLNonNull(GraphQLInt) },
+    rC: { type: new GraphQLNonNull(GraphQLInt) },
+    curr: { type: new GraphQLNonNull(GraphQLString) }
   },
   outputFields: {
     result: {
@@ -41,20 +43,20 @@ const userCreateOrderMutation = {
       resolve: payload => payload.result
     }
   },
-  mutateAndGetPayload: ({ items, dCategory, rCategory, currency }, { user }) => new Promise((resolve, reject) => {
+  mutateAndGetPayload: ({ items, dC, rC, curr }, { user }) => new Promise((resolve, reject) => {
     if (user) {
         // Create new order root in firebase.
       const newRef = refs.order.root.push();
       const newOrderKey = newRef.key;
       return newRef.set({
         id: newOrderKey,
-        ordererId: user.uid,
+        oId: user.uid,
             // TODO : define order's category( delivery & runner )
-        dCategory,
-        rCategory,
-        currency,
+        dC,
+        rC,
+        curr,
             // TODO : impl price calculation logic.
-        estimatedDeliveryPrice: 10000,
+        EDP: 10000,
         ...defaultSchema.order.root
       })
         // Create new orderPriperties in firebase.
@@ -88,15 +90,15 @@ const runnerCatchOrderMutation = {
           .then((orderSnap) => {
             const order = orderSnap.val();
             if (!order) {
-              return reject('Connection doesn\'t exist.');
+              return reject('Order doesn\'t exist.');
             }
-            if (order.ordererId === user.uid) {
+            if (order.oId === user.uid) {
               return reject('Can\'t ship your port.');
             }
-            if (order.runnerId === user.uid) {
+            if (order.rId === user.uid) {
               return reject('This ship is already designated for you.');
             }
-            if (order.runnerId) {
+            if (order.rId) {
               return reject('This ship is already designated for other user.');
             }
             return refs.order.root.child(orderId).child('runnerId').set(user.uid);

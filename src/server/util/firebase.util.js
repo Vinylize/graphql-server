@@ -62,42 +62,44 @@ const refs = {
 const defaultSchema = {
   user: {
     root: {
-      identificationImageUrl: null,
-      profileImageUrl: null,
-      isPhoneValid: false,
-      phoneNumber: null,
-      rating: 5,
+      idUrl: null,
+      pUrl: null,
+      isPV: false,
+      p: null,
+      r: 5,
+      dt: null
     },
     orderQualification: {
-      isAgreed: false,
-      agreedAt: null
+      isA: false,
+      aAt: null
     },
     runnerQualification: {
-      isAgreed: false,
-      agreedAt: null,
-      isFirstApproved: false,
-      firstApprovedAt: null,
-      isSecondApproved: false,
-      secondApprovedAt: null
+      isA: false,
+      aAt: null,
+      isFA: false,
+      fAAt: null,
+      isSA: false,
+      sAAt: null
     }
   },
   order: {
     root: {
-      runnerId: null,
-      receiptImage: null,
-      realDeliveryPrice: null,
-      isExpired: false
+      rId: null,
+      rImg: null,
+      EDP: null,
+      RDP: null,
+      isExp: false
     },
     itemInfo: {
 
     },
     evalFromUser: {
-      mark: 3,
-      comment: null
+      m: 3,
+      comm: null
     },
     evalFromRunner: {
-      mark: 3,
-      comment: null
+      m: 3,
+      comm: null
     }
   },
   node: {
@@ -105,17 +107,17 @@ const defaultSchema = {
       like: 0
     },
     items: {
-      itemImageUrl: null
+      iImgUrl: null
     }
   },
   partner: {
     root: {
     },
     qualification: {
-      isAgreed: false,
-      agreedAt: null,
-      isFirstApproved: false,
-      firstApprovedAt: null
+      isA: false,
+      aAt: null,
+      isFA: false,
+      fAAt: null
     }
   }
 };

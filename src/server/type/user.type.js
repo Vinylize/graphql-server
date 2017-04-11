@@ -22,8 +22,8 @@ const UserQualificationType = new GraphQLObjectType({
   name: 'userQualification',
   description: 'Type of properties of port.',
   fields: () => ({
-    isAgreed: { type: GraphQLBoolean },
-    agreedAt: { type: GraphQLInt }
+    isA: { type: GraphQLBoolean },
+    aAt: { type: GraphQLInt }
   })
 });
 
@@ -31,12 +31,12 @@ const RunnerQualificationType = new GraphQLObjectType({
   name: 'runnerQualification',
   description: 'Type of properties of ship.',
   fields: () => ({
-    isAgreed: { type: GraphQLBoolean },
-    agreedAt: { type: GraphQLInt },
-    isFirstApproved: { type: GraphQLBoolean },
-    firstApprovedAt: { type: GraphQLInt },
-    isSecondApproved: { type: GraphQLBoolean },
-    secondApprovedAt: { type: GraphQLInt }
+    isA: { type: GraphQLBoolean },
+    aAt: { type: GraphQLInt },
+    isFA: { type: GraphQLBoolean },
+    fAAt: { type: GraphQLInt },
+    isSA: { type: GraphQLBoolean },
+    sAAt: { type: GraphQLInt }
   })
 });
 
@@ -54,7 +54,7 @@ const UserPaymentInfoType = new GraphQLObjectType({
   description: 'UserPaymentInfoType of user.',
   fields: () => ({
     type: { type: GraphQLInt },
-    number: { type: GraphQLString },
+    num: { type: GraphQLString },
     provider: { type: GraphQLString }
   })
 });
@@ -64,7 +64,7 @@ const RunnerPaymentInfoType = new GraphQLObjectType({
   description: 'RunnerPaymentInfoType of user.',
   fields: () => ({
     type: { type: GraphQLInt },
-    number: { type: GraphQLString },
+    num: { type: GraphQLString },
     provider: { type: GraphQLString }
   })
 });
@@ -74,8 +74,8 @@ const AddressType = new GraphQLObjectType({
   description: 'addressType of user.',
   fields: () => ({
     name: { type: GraphQLBoolean },
-    mainAddress: { type: GraphQLInt },
-    subAddress: { type: GraphQLInt },
+    mAddr: { type: GraphQLInt },
+    sAddr: { type: GraphQLInt },
     lat: { type: GraphQLInt },
     lon: { type: GraphQLInt }
   })
@@ -86,7 +86,8 @@ const PhoneVerificationInfoType = new GraphQLObjectType({
   description: 'phoneVerificationInfoType of user.',
   fields: () => ({
     code: { type: GraphQLInt },
-    expiredAt: { type: GraphQLInt }
+    eAt: { type: GraphQLInt },
+    vAt: { type: GraphQLInt }
   })
 });
 
@@ -94,10 +95,10 @@ const HelpType = new GraphQLObjectType({
   name: 'help',
   description: 'helpType of user.',
   fields: () => ({
-    comment: { type: GraphQLString },
-    createdAt: { type: GraphQLInt },
-    answer: { type: GraphQLString },
-    answerdAt: { type: GraphQLInt }
+    comm: { type: GraphQLString },
+    cAt: { type: GraphQLInt },
+    ans: { type: GraphQLString },
+    ansAt: { type: GraphQLInt }
   })
 });
 
@@ -109,14 +110,14 @@ const UserType = new GraphQLObjectType({
   description: 'UserType of Vinyl.',
   fields: () => ({
     id: { type: GraphQLString },
-    email: { type: GraphQLString },
-    name: { type: GraphQLString },
-    createdAt: { type: GraphQLInt },
-    phoneNumber: { type: GraphQLString },
-    isPhoneValid: { type: GraphQLBoolean },
-    rating: { type: GraphQLFloat },
-    profileImageUrl: { type: GraphQLString },
-    identificationImageUrl: { type: GraphQLString },
+    e: { type: GraphQLString },
+    n: { type: GraphQLString },
+    cAt: { type: GraphQLInt },
+    p: { type: GraphQLString },
+    isPV: { type: GraphQLBoolean },
+    r: { type: GraphQLFloat },
+    pUrl: { type: GraphQLString },
+    iUrl: { type: GraphQLString },
     coordinate: {
       type: CoordinateType,
       resolve: source => new Promise((resolve, reject) => {
@@ -217,17 +218,6 @@ const UserType = new GraphQLObjectType({
         });
       })
     },
-    // TODO: Implement another user type.
-    // ship: {
-    //   type: new GraphQLList(OrderType),
-    //   resolve: (source) => {
-    //   }
-    // },
-    // port: {
-    //   type: new GraphQLList(OrderType),
-    //   resolve: (source) => {
-    //   }
-    // },
   })
 });
 

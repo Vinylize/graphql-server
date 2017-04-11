@@ -79,7 +79,7 @@ const uploadNodeImageMutation = {
     nodeId: { type: new GraphQLNonNull(GraphQLString) }
   },
   outputFields: {
-    imageUrl: { type: GraphQLString, resolve: payload => payload.imageUrl }
+    imgUrl: { type: GraphQLString, resolve: payload => payload.imgUrl }
   },
   mutateAndGetPayload: ({ nodeId }, { user, file }) => new Promise((resolve, reject) => {
     if (user) {
@@ -97,9 +97,9 @@ const uploadNodeImageMutation = {
           if (err) {
             return reject(err);
           }
-          const imageUrl = `${s3BaseUrl}${s3BucketName}/${key}`;
-          return refs.node.root.child(nodeId).child('imageUrl').set(imageUrl)
-            .then(() => resolve({ imageUrl }));
+          const imgUrl = `${s3BaseUrl}${s3BucketName}/${key}`;
+          return refs.node.root.child(nodeId).child('imgUrl').set(imgUrl)
+            .then(() => resolve({ imgUrl }));
         });
       }
       return reject('There is no image.');

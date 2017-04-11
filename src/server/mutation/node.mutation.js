@@ -20,12 +20,11 @@ import {
 const createNodeFromAdminMutation = {
   name: 'createNodeFromAdmin',
   inputFields: {
-    name: { type: new GraphQLNonNull(GraphQLString) },
-    phone: { type: GraphQLString },
+    n: { type: new GraphQLNonNull(GraphQLString) },
+    p: { type: GraphQLString },
     addr: { type: new GraphQLNonNull(GraphQLString) },
     c1: { type: new GraphQLNonNull(GraphQLString) },
     c2: { type: GraphQLString },
-    imgUrl: { type: GraphQLString },
     type: { type: new GraphQLNonNull(GraphQLString) },
     lat: { type: new GraphQLNonNull(GraphQLFloat) },
     lon: { type: new GraphQLNonNull(GraphQLFloat) },
@@ -38,9 +37,9 @@ const createNodeFromAdminMutation = {
   },
   mutateAndGetPayload: (
     {
-      name,
+      n,
       imgUrl,
-      phone,
+      p,
       addr,
       c1,
       c2,
@@ -55,9 +54,8 @@ const createNodeFromAdminMutation = {
         const newNodeKey = newRef.key;
         return newRef.set({
           id: newNodeKey,
-          name,
-          imageUrl: imgUrl || null,
-          phone,
+          n,
+          p,
           addr,
           c1,
           c2,

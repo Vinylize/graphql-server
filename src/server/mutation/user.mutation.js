@@ -28,9 +28,9 @@ const createUserMutation = {
   name: 'createUser',
   description: 'Register User to firebase via yetta server.',
   inputFields: {
-    email: { type: new GraphQLNonNull(GraphQLString) },
-    name: { type: new GraphQLNonNull(GraphQLString) },
-    password: { type: new GraphQLNonNull(GraphQLString) }
+    e: { type: new GraphQLNonNull(GraphQLString) },
+    n: { type: new GraphQLNonNull(GraphQLString) },
+    pw: { type: new GraphQLNonNull(GraphQLString) }
   },
   outputFields: {
     result: {
@@ -38,20 +38,21 @@ const createUserMutation = {
       resolve: payload => payload.result
     }
   },
-  mutateAndGetPayload: ({ email, password, name }) => new Promise((resolve, reject) => {
+  mutateAndGetPayload: ({ e, pw, n }) => new Promise((resolve, reject) => {
+    // create user at firebase
     admin.auth().createUser({
-      email,
+      email: e,
       emailVerified: false,
-      password,
-      displayName: name,
+      password: pw,
+      displayName: n,
       disabled: false
     })
         .then(createdUser => refs.user.root.child(createdUser.uid).set({
           id: createdUser.uid,
-          email,
-          password: bcrypt.hashSync(password, saltRounds),
-          name,
-          createdAt: Date.now(),
+          e,
+          pw: bcrypt.hashSync(pw, saltRounds),
+          n,
+          cAt: Date.now(),
           ...defaultSchema.user.root
         })
             .then(() => refs.user.userQualification.child(createdUser.uid).set({
@@ -92,20 +93,20 @@ const userRequestPhoneVerifiactionMutation = {
   name: 'userRequestPhoneVerification',
   description: 'Send verification message to user.',
   inputFields: {
-    phoneNumber: { type: new GraphQLNonNull(GraphQLString) }
+    p: { type: new GraphQLNonNull(GraphQLString) }
   },
   outputFields: {
     result: { type: GraphQLString, resolve: payload => payload.result }
   },
-  mutateAndGetPayload: ({ phoneNumber }, { user }) => new Promise((resolve, reject) => {
+  mutateAndGetPayload: ({ p }, { user }) => new Promise((resolve, reject) => {
     if (user) {
       const code = smsUtil.getRandomCode();
-      smsUtil.sendVerificationMessage(phoneNumber, code);
+      smsUtil.sendVerificationMessage(p, code);
       return refs.user.phoneVerificationInfo.child(user.uid).set({
         code,
-        expiredAt: Date.now() + (120 * 1000)
+        eAt: Date.now() + (120 * 1000)
       })
-          .then(() => refs.user.root.child(user.uid).child('phoneNumber').set(phoneNumber))
+          .then(() => refs.user.root.child(user.uid).child('p').set(p))
           .then(() => resolve({ result: 'OK' }))
           .catch(reject);
     }
@@ -126,7 +127,7 @@ const userResponsePhoneVerificationMutation = {
     if (user) {
       return refs.user.phoneVerificationInfo.child(user.uid).once('value')
           .then((snap) => {
-            if (snap.val().expiredAt < Date.now()) {
+            if (snap.val().eAt < Date.now()) {
               // top priority
               return reject('time exceeded.');
             } else if (snap.val().code !== code) {
@@ -135,7 +136,8 @@ const userResponsePhoneVerificationMutation = {
             }
             return null;
           })
-          .then(() => refs.user.root.child(user.uid).child('isPhoneValid').set(true))
+          .then(() => refs.user.root.child(user.uid).child('isPV').set(true))
+          .then(() => refs.user.phoneVerificationInfo.child(user.uid).child('vAt').set(Date.now()))
           .then(() => resolve({ result: 'OK' }))
           .catch(reject);
     }
