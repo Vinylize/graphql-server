@@ -57,7 +57,8 @@ const userCreateOrderMutation = {
         curr,
             // TODO : impl price calculation logic.
         EDP: 10000,
-        ...defaultSchema.order.root
+        eAt: Date.now() + (300 * 1000),
+        ...defaultSchema.order.root,
       })
         // Create new orderPriperties in firebase.
           .then(() => refs.order.itemInfo.child(newOrderKey).set({

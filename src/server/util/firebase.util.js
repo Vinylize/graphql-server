@@ -88,7 +88,6 @@ const defaultSchema = {
       rImg: null,
       EDP: null,
       RDP: null,
-      isExp: false
     },
     itemInfo: {
 
