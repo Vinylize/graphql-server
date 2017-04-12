@@ -100,7 +100,7 @@ firebaseProd.json
 
 #dist folder
 dist
-temp
+dist-test
 
 .vscode
 

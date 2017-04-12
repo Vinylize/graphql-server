@@ -1,26 +1,31 @@
 import admin from 'firebase-admin';
 
 const serviceAccount = require(`../../../${process.env.FIREBASE_SERVICE_ACCOUNT_JSON}`);
-const adminOption = {
+
+const config = {
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: process.env.FIREBASE_URL
+  databaseURL: process.env.FIREBASE_URL,
 };
 
-admin.initializeApp(adminOption);
+admin.initializeApp(config);
 
-const db = admin.database();
+const time = Date.now().toString();
+const env = process.env.NODE_ENV;
+console.log(process.env.NODE_ENV);
 
-const userRef = db.ref('/user');
-const userPropertiesRef = db.ref('/userProperties');
+const db = (env === 'test') ? admin.database().ref(`test${time}`) : admin.database().ref();
 
-const orderRef = db.ref('/order');
-const orderPropertiesRef = db.ref('/orderProperties');
+const userRef = db.child('/user');
+const userPropertiesRef = db.child('/userProperties');
 
-const nodeRef = db.ref('/node');
-const nodePropertiesRef = db.ref('/nodeProperties');
+const orderRef = db.child('/order');
+const orderPropertiesRef = db.child('/orderProperties');
 
-const partnerRef = db.ref('/partner');
-const partnerPropertiesRef = db.ref('/partnerProperties');
+const nodeRef = db.child('/node');
+const nodePropertiesRef = db.child('/nodeProperties');
+
+const partnerRef = db.child('/partner');
+const partnerPropertiesRef = db.child('/partnerProperties');
 
 // synchronized with documentation
 const refs = {

@@ -112,7 +112,7 @@ const UserType = new GraphQLObjectType({
     id: { type: GraphQLString },
     e: { type: GraphQLString },
     n: { type: GraphQLString },
-    cAt: { type: GraphQLInt },
+    cAt: { type: GraphQLFloat },
     p: { type: GraphQLString },
     isPV: { type: GraphQLBoolean },
     r: { type: GraphQLFloat },

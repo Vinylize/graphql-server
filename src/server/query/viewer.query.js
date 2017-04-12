@@ -15,7 +15,7 @@ const ViewerQuery = {
                 id: user.uid,
                 ...snap.val()
               });
-            });
+            }).catch(console.log);
       } else {
           // TODO : implement global error handler.
         reject('This query needs access token. Please check header.authorization.');
