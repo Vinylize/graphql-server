@@ -4,7 +4,6 @@ import {
   GraphQLObjectType,
   GraphQLString,
   GraphQLInt,
-  GraphQLBoolean,
   GraphQLInputObjectType,
 } from 'graphql';
 
@@ -18,8 +17,8 @@ const ItemType = new GraphQLInputObjectType({
     cnt: { type: GraphQLInt },
     price: { type: GraphQLInt },
     curr: { type: GraphQLInt },
-    pSAt: { type: GraphQLInt },
-    pFAt: { type: GraphQLInt },
+    pSAt: { type: GraphQLFloat },
+    pFAt: { type: GraphQLFloat },
 // if custom type
     iName: { type: GraphQLString },
     iPr: { type: GraphQLFloat }
@@ -33,17 +32,16 @@ const OrderType = new GraphQLObjectType({
     id: { type: GraphQLString },
     oId: { type: UserType },
     rId: { type: UserType },
-    RSAt: { type: GraphQLInt },
+    RSAt: { type: GraphQLFloat },
     dC: { type: GraphQLInt },
     rC: { type: GraphQLInt },
     rImg: { type: GraphQLString },
-
-    isExp: { type: GraphQLBoolean },
+    eAt: { type: GraphQLFloat },
     items: { type: new GraphQLList(ItemType) },
     EDP: { type: GraphQLInt },
     RDP: { type: GraphQLInt },
     itemP: { type: GraphQLInt },
-    cAt: { type: GraphQLInt },
+    cAt: { type: GraphQLFloat },
   })
 });
 

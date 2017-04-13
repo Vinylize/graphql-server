@@ -11,7 +11,6 @@ admin.initializeApp(config);
 
 const time = Date.now().toString();
 const env = process.env.NODE_ENV;
-console.log(process.env.NODE_ENV);
 
 const db = (env === 'test') ? admin.database().ref(`test${time}`) : admin.database().ref();
 

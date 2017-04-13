@@ -9,6 +9,7 @@ import {
 } from 'graphql';
 
 import NodeType from '../type/node.type';
+import category from '../../shared/category/category';
 
 import {
   refs
@@ -182,14 +183,20 @@ const UserType = new GraphQLObjectType({
             .catch(reject);
       })
     },
+    nodeCategory: {
+      type: GraphQLString,
+      resolve: () => new Promise((resolve) => {
+        resolve(JSON.stringify(category.node));
+      })
+    },
     node: {
       type: new GraphQLList(NodeType),
       args: {
         lat: { type: new GraphQLNonNull(GraphQLFloat) },
         lon: { type: new GraphQLNonNull(GraphQLFloat) },
         radius: { type: new GraphQLNonNull(GraphQLFloat) },
-        c1: { type: GraphQLString },
-        c2: { type: GraphQLString }
+        c1: { type: GraphQLInt },
+        c2: { type: GraphQLInt }
       },
       resolve: (source, { lat, lon, radius, c1, c2 }) => new Promise((resolve) => {
         const geoQuery = nodeGeoFire.query({

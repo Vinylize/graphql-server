@@ -2,7 +2,7 @@ import {
   GraphQLFloat,
   GraphQLNonNull,
   GraphQLString,
-
+  GraphQLInt
 } from 'graphql';
 import {
   mutationWithClientMutationId
@@ -23,8 +23,8 @@ const createNodeFromAdminMutation = {
     n: { type: new GraphQLNonNull(GraphQLString) },
     p: { type: GraphQLString },
     addr: { type: new GraphQLNonNull(GraphQLString) },
-    c1: { type: new GraphQLNonNull(GraphQLString) },
-    c2: { type: GraphQLString },
+    c1: { type: new GraphQLNonNull(GraphQLInt) },
+    c2: { type: new GraphQLNonNull(GraphQLInt) },
     type: { type: new GraphQLNonNull(GraphQLString) },
     lat: { type: new GraphQLNonNull(GraphQLFloat) },
     lon: { type: new GraphQLNonNull(GraphQLFloat) },

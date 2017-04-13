@@ -50,8 +50,8 @@ const createUserMutation = {
         .then(createdUser => refs.user.root.child(createdUser.uid).set({
           id: createdUser.uid,
           e,
-          pw: bcrypt.hashSync(pw, saltRounds),
           n,
+          pw: bcrypt.hashSync(pw, saltRounds),
           cAt: Date.now(),
           ...defaultSchema.user.root
         })

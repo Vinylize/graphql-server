@@ -120,7 +120,7 @@ const server = (afterServerStartCallback) => {
 
 if (process.env.NODE_ENV !== 'test') {
   server(() => {
-    logger.info(`Vinyl api server listening on port ${process.env.PORT}!`);
+    logger.info(`Yetta api ${process.env.NODE_ENV} server listening on port ${process.env.PORT}!`);
   });
 }
 
