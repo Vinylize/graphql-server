@@ -15,9 +15,9 @@ const category = {
           name: 'GS25'
         },
         4: {
-          name: '미니스탑'
+          name: '미니스톱'
         },
-        99: {
+        999: {
           name: '기타'
         }
       },
@@ -37,13 +37,13 @@ const category = {
         3: {
           name: '중식'
         },
-        99: {
+        999: {
           name: '기타'
         }
       },
       name: '음식점'
     },
-    99: {
+    999: {
       name: '기타'
     }
   }

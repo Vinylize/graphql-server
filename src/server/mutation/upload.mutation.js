@@ -22,7 +22,7 @@ const userUploadProfileImageMutation = {
   description: '',
   inputFields: {},
   outputFields: {
-    imageUrl: { type: GraphQLString, resolve: payload => payload.imageUrl }
+    imgUrl: { type: GraphQLString, resolve: payload => payload.imgUrl }
   },
   mutateAndGetPayload: (args, { user, file }) => new Promise((resolve, reject) => {
     if (user) {
@@ -41,7 +41,7 @@ const userUploadIdImageMutation = {
   description: '',
   inputFields: {},
   outputFields: {
-    imageUrl: { type: GraphQLString, resolve: payload => payload.imageUrl }
+    imgUrl: { type: GraphQLString, resolve: payload => payload.imgUrl }
   },
   mutateAndGetPayload: (args, { user, file }) => new Promise((resolve, reject) => {
     if (user) {
@@ -59,7 +59,7 @@ const runnerUploadReciptImageMutation = {
   description: '',
   inputFields: {},
   outputFields: {
-    imageUrl: { type: GraphQLString, resolve: payload => payload.imageUrl }
+    imageUrl: { type: GraphQLString, resolve: payload => payload.imgUrl }
   },
   mutateAndGetPayload: (args, { user, file }) => new Promise((resolve, reject) => {
     if (user) {
@@ -113,7 +113,7 @@ const uploadNodeItemImageMutation = {
   description: '',
   inputFields: {},
   outputFields: {
-    imageUrl: { type: GraphQLString, resolve: payload => payload.imageUrl }
+    imgUrl: { type: GraphQLString, resolve: payload => payload.imgUrl }
   },
   mutateAndGetPayload: (args, { user, file }) => new Promise((resolve, reject) => {
     if (user) {
