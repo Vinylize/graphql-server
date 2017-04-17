@@ -195,7 +195,7 @@ const UserType = new GraphQLObjectType({
         lat: { type: new GraphQLNonNull(GraphQLFloat) },
         lon: { type: new GraphQLNonNull(GraphQLFloat) },
         radius: { type: new GraphQLNonNull(GraphQLFloat) },
-        c1: { type: GraphQLInt },
+        c1: { type: new GraphQLNonNull(GraphQLInt) },
         c2: { type: GraphQLInt }
       },
       resolve: (source, { lat, lon, radius, c1, c2 }) => new Promise((resolve) => {
@@ -212,11 +212,11 @@ const UserType = new GraphQLObjectType({
 
         geoQuery.on('ready', () => {
           Promise.all(p).then((result) => {
-            if (!c1) {
+            if (c1 === 0) {
               return resolve(result);
             }
             const c1Result = result.filter(node => node.c1 === c1);
-            if (!c2) {
+            if (!c2 || c2 === 0) {
               return resolve(c1Result);
             }
             return resolve(c1Result.filter(node => node.c2 === c2));
