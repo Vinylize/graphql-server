@@ -10,6 +10,7 @@ import logger from 'winston';
 import authUtil from './util/auth.util';
 
 import UserMutation from './mutation/user.mutation';
+import RunnerMutation from './mutation/runner.mutation';
 import OrderMutation from './mutation/order.mutation';
 import NodeMutation from './mutation/node.mutation';
 import PartnerMutation from './mutation/partner.mutation';
@@ -47,6 +48,7 @@ const server = (afterServerStartCallback) => {
       description: 'Root Mutation of the Yetta Schema',
       fields: () => ({
         ...UserMutation,
+        ...RunnerMutation,
         ...OrderMutation,
         ...NodeMutation,
         ...PartnerMutation,

@@ -145,11 +145,61 @@ const userResponsePhoneVerificationMutation = {
   })
 };
 
+const userAgreeMutation = {
+  name: 'userAgree',
+  description: 'user agree agreement',
+  inputFields: {
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ NULL }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      const newRef = refs.user.userQualification.child(user.uid);
+      return newRef.child('isA').set(true)
+      .then(() => newRef.child('aAt').set(Date.now()))
+      .then(() => resolve({ result: 'OK' }))
+      .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
+const userAddAddressMutation = {
+  name: 'userAddAddress',
+  description: 'user add address',
+  inputFields: {
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    mAddr: { type: new GraphQLNonNull(GraphQLString) },
+    sAddr: { type: new GraphQLNonNull(GraphQLString) },
+    lat: { type: new GraphQLNonNull(GraphQLFloat) },
+    lon: { type: new GraphQLNonNull(GraphQLFloat) }
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ name, mAddr, sAddr, lat, lon }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      const newRef = refs.user.address.child(user.uid).push();
+      return newRef.child('name').set(name)
+      .then(() => newRef.child('mAddr').set(mAddr))
+      .then(() => newRef.child('sAddr').set(sAddr))
+      .then(() => newRef.child('lat').set(lat))
+      .then(() => newRef.child('lon').set(lon))
+      .then(() => resolve({ result: 'OK' }))
+      .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
 const UserMutation = {
   createUser: mutationWithClientMutationId(createUserMutation),
   userUpdateCoordinate: mutationWithClientMutationId(userUpdateCoordinateMutation),
   userRequestPhoneVerification: mutationWithClientMutationId(userRequestPhoneVerifiactionMutation),
-  userResponsePhoneVerification: mutationWithClientMutationId(userResponsePhoneVerificationMutation)
+  userResponsePhoneVerification: mutationWithClientMutationId(userResponsePhoneVerificationMutation),
+  userAgree: mutationWithClientMutationId(userAgreeMutation),
+  userAddAddress: mutationWithClientMutationId(userAddAddressMutation)
 };
 
 export default UserMutation;

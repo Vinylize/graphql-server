@@ -135,7 +135,7 @@ const UserType = new GraphQLObjectType({
             .catch(reject);
       })
     },
-    RunnerQualification: {
+    runnerQualification: {
       type: RunnerQualificationType,
       resolve: source => new Promise((resolve, reject) => {
         refs.user.runnerQualification.child(source.id).once('value')
@@ -143,7 +143,7 @@ const UserType = new GraphQLObjectType({
             .catch(reject);
       })
     },
-    UserPaymentInfo: {
+    userPaymentInfo: {
       type: new GraphQLList(UserPaymentInfoType),
       resolve: source => new Promise((resolve, reject) => {
         refs.user.userPaymentInfo.child(source.id).once('value')
@@ -151,7 +151,7 @@ const UserType = new GraphQLObjectType({
             .catch(reject);
       })
     },
-    RunnerPaymentInfo: {
+    runnerPaymentInfo: {
       type: new GraphQLList(RunnerPaymentInfoType),
       resolve: source => new Promise((resolve, reject) => {
         refs.user.runnerPaymentInfo.child(source.id).once('value')

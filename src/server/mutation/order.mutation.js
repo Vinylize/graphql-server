@@ -2,32 +2,20 @@ import {
   GraphQLString,
   GraphQLNonNull,
   GraphQLInt,
-  GraphQLList,
-  GraphQLInputObjectType,
-  GraphQLFloat
+  GraphQLList
 } from 'graphql';
 import {
   mutationWithClientMutationId
 } from 'graphql-relay';
 
 import {
+  ItemType
+} from '../type/order.type';
+
+import {
   defaultSchema,
   refs
 } from '../util/firebase.util';
-
-const ItemType = new GraphQLInputObjectType({
-  name: 'Item',
-  fields: () => ({
-    nId: { type: new GraphQLNonNull(GraphQLString) },
-    iId: { type: new GraphQLNonNull(GraphQLString) },
-    cnt: { type: new GraphQLNonNull(GraphQLInt) },
-    type: { type: new GraphQLNonNull(GraphQLInt) },
-    curr: { type: new GraphQLNonNull(GraphQLInt) },
-    price: { type: new GraphQLNonNull(GraphQLFloat) },
-// if custom type
-    iName: { type: GraphQLString },
-  })
-});
 
 const userCreateOrderMutation = {
   name: 'userCreateOrder',
@@ -112,9 +100,57 @@ const runnerCatchOrderMutation = {
   })
 };
 
+const userEvalOrderMutation = {
+  name: 'userEvalOrder',
+  description: 'user evaluate order',
+  inputFields: {
+    oId: { type: new GraphQLNonNull(GraphQLString) },
+    m: { type: new GraphQLNonNull(GraphQLInt) },
+    comm: { type: new GraphQLNonNull(GraphQLString) }
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ oId, m, comm }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      const newRef = refs.order.evalFromUser.child(oId);
+      return newRef.child('m').set(m)
+      .then(() => newRef.child('comm').set(comm))
+      .then(() => resolve({ result: 'OK' }))
+      .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
+const runnerEvalOrderMutation = {
+  NAME: 'runnerEvalOrder',
+  description: 'runner evaluate order',
+  inputFields: {
+    oId: { type: new GraphQLNonNull(GraphQLString) },
+    m: { type: new GraphQLNonNull(GraphQLInt) },
+    comm: { type: new GraphQLNonNull(GraphQLString) }
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ oId, m, comm }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      const newRef = refs.order.evalFromRunner.child(oId);
+      return newRef.child('m').set(m)
+      .then(() => newRef.child('comm').set(comm))
+      .then(() => resolve({ result: 'OK' }))
+      .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
 const OrderMutation = {
   userCreateOrder: mutationWithClientMutationId(userCreateOrderMutation),
-  runnerCatchOrder: mutationWithClientMutationId(runnerCatchOrderMutation)
+  runnerCatchOrder: mutationWithClientMutationId(runnerCatchOrderMutation),
+  userEvalOrder: mutationWithClientMutationId(userEvalOrderMutation),
+  runnerEvalOrder: mutationWithClientMutationId(runnerEvalOrderMutation)
 };
 
 export default OrderMutation;
