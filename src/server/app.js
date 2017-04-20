@@ -107,7 +107,7 @@ const server = (afterServerStartCallback) => {
         extensions(ext) {
           // TODO : Find why `logger.debug(ext.result)` doesn't work on this part.
           // logger.debug(ext.result);
-          console.log(ext.result);
+          console.log(ext);
           return { runTime: `${Date.now() - startTime}ms` };
         }
       };

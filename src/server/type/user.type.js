@@ -16,8 +16,12 @@ import {
 } from '../util/firebase.util';
 
 import {
-  nodeGeoFire,
+  nodeGeoFire
 } from '../util/firebase.geofire.util';
+
+import {
+  issueToken
+} from '../util/payment/braintree.util';
 
 const UserQualificationType = new GraphQLObjectType({
   name: 'userQualification',
@@ -225,6 +229,12 @@ const UserType = new GraphQLObjectType({
         });
       })
     },
+    braintreeToken: {
+      type: GraphQLString,
+      resolve: () => new Promise((resolve) => {
+        resolve(issueToken());
+      })
+    }
   })
 });
 
