@@ -127,14 +127,14 @@ const userResponsePhoneVerificationMutation = {
     if (user) {
       return refs.user.phoneVerificationInfo.child(user.uid).once('value')
           .then((snap) => {
+            if (snap.val().code === code && snap.val().eAt > Date.now()) {
+              return resolve();
+            }
             if (snap.val().eAt < Date.now()) {
               // top priority
               return reject('time exceeded.');
-            } else if (snap.val().code !== code) {
-              // secondary priority
-              return reject('wrong code.');
             }
-            return null;
+            return reject('wrong code.');
           })
           .then(() => refs.user.root.child(user.uid).child('isPV').set(true))
           .then(() => refs.user.phoneVerificationInfo.child(user.uid).child('vAt').set(Date.now()))
