@@ -4,7 +4,6 @@ import {
   GraphQLObjectType,
   GraphQLString,
   GraphQLInt,
-  GraphQLInputObjectType,
 } from 'graphql';
 
 import {
@@ -12,46 +11,76 @@ import {
 } from '../util/firebase.util';
 
 import UserType from './user.type';
+import NodeType from './node.type';
 
-const ItemType = new GraphQLInputObjectType({
-  name: 'Item',
+const RegularItemType = new GraphQLObjectType({
+  name: 'regularItem',
+  description: 'Registerd item in node.',
   fields: () => ({
-    nId: { type: GraphQLString },
     iId: { type: GraphQLString },
+    n: { type: GraphQLString },
+    p: { type: GraphQLInt },
     cnt: { type: GraphQLInt },
-    price: { type: GraphQLInt },
-    curr: { type: GraphQLInt },
-    pSAt: { type: GraphQLFloat },
-    pFAt: { type: GraphQLFloat },
-// if custom type
-    iName: { type: GraphQLString },
-    iPr: { type: GraphQLFloat }
   })
 });
 
-const PaymentDetailType = new GraphQLInputObjectType({
+const CustomItemType = new GraphQLObjectType({
+  name: 'customItem',
+  description: 'User customed item.',
+  fields: () => ({
+    manu: { type: GraphQLString },
+    n: { type: GraphQLString },
+    cnt: { type: GraphQLInt }
+  })
+});
+
+const ItemType = new GraphQLObjectType({
+  name: 'Item',
+  description: 'item of order.',
+  fields: () => ({
+    regItem: { type: new GraphQLList(RegularItemType) },
+    customItem: { type: new GraphQLList(CustomItemType) }
+  })
+});
+
+const DestType = new GraphQLObjectType({
+  name: 'dest',
+  description: 'Destination of order.',
+  fields: () => ({
+    n1: { type: GraphQLString },
+    n2: { type: GraphQLString },
+    lat: { type: GraphQLFloat },
+    lon: { type: GraphQLFloat },
+  })
+});
+
+const PaymentDetailType = new GraphQLObjectType({
   name: 'paymentDetail',
-  field: () => ({
-  })
-});
-
-const CalculateDetailType = new GraphQLInputObjectType({
-  name: 'calculateDetail',
-  field: () => ({
-  })
-});
-
-const EvalFromRunnerType = new GraphQLInputObjectType({
-  name: 'evalFromRunner',
-  field: () => ({
+  fields: () => ({
     m: { type: GraphQLInt },
     comm: { type: GraphQLString }
   })
 });
 
-const EvalFromUserType = new GraphQLInputObjectType({
+const CalculateDetailType = new GraphQLObjectType({
+  name: 'calculateDetail',
+  fields: () => ({
+    m: { type: GraphQLInt },
+    comm: { type: GraphQLString }
+  })
+});
+
+const EvalFromRunnerType = new GraphQLObjectType({
+  name: 'evalFromRunner',
+  fields: () => ({
+    m: { type: GraphQLInt },
+    comm: { type: GraphQLString }
+  })
+});
+
+const EvalFromUserType = new GraphQLObjectType({
   name: 'evalFromUser',
-  field: () => ({
+  fields: () => ({
     m: { type: GraphQLInt },
     comm: { type: GraphQLString }
   })
@@ -62,17 +91,66 @@ const OrderType = new GraphQLObjectType({
   description: 'OrderType of User.',
   fields: () => ({
     id: { type: GraphQLString },
-    oId: { type: UserType },
-    rId: { type: UserType },
-    RSAt: { type: GraphQLFloat },
+    nId: {
+      type: NodeType,
+      resolve: () => {
+
+      }
+    },
+    oId: {
+      type: UserType,
+      resolve: source => new Promise((resolve, reject) => {
+        refs.user.root.child(source.oId).once('value')
+          .then(snap => resolve(snap.val()))
+          .catch(reject);
+      })
+    },
+    rId: {
+      type: UserType,
+      resolve: source => new Promise((resolve, reject) => {
+        if (!source.rId) {
+          return resolve();
+        }
+        return refs.user.root.child(source.rId).once('value')
+          .then(snap => resolve(snap.val()))
+          .catch(reject);
+      })
+    },
+    items: {
+      type: ItemType,
+      resolve: source => new Promise((resolve, reject) => {
+        let regItem = [];
+        let customItem = [];
+        return refs.order.regItem.child(source.id).once('value')
+          .then((snap) => {
+            if (snap.val() !== null) {
+              regItem = Object.keys(snap.val()).map(key => snap.val()[key]);
+            }
+            return refs.order.customItem.child(source.id).once('value');
+          })
+          .then((snap) => {
+            if (snap.val() !== null) {
+              customItem = Object.keys(snap.val()).map(key => snap.val()[key]);
+            }
+            return resolve({ regItem, customItem });
+          })
+          .catch(reject);
+      })
+    },
+    dest: {
+      type: DestType,
+      resolve: source => new Promise((resolve, reject) =>
+        refs.order.dest.child(source.id).once('value')
+          .then(snap => resolve(snap.val()))
+          .catch(reject))
+    },
+    rSAt: { type: GraphQLFloat },
     dC: { type: GraphQLInt },
     rC: { type: GraphQLInt },
     rImg: { type: GraphQLString },
-    eAt: { type: GraphQLFloat },
-    items: { type: new GraphQLList(ItemType) },
-    EDP: { type: GraphQLInt },
-    RDP: { type: GraphQLInt },
-    itemP: { type: GraphQLInt },
+    eDP: { type: GraphQLInt },
+    rDP: { type: GraphQLInt },
+    tP: { type: GraphQLInt },
     cAt: { type: GraphQLFloat },
     paymentDetail: {
       type: PaymentDetailType,

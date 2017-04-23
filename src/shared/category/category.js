@@ -46,11 +46,40 @@ const category = {
     999: {
       name: '기타'
     }
+  },
+  delivery: {
+    0: {
+      name: '기타'
+    },
+    1: {
+      name: '구매배송'
+    },
+    2: {
+      name: '사용자지정배송'
+    },
+  },
+  runner: {
+    0: {
+      name: '기타'
+    },
+    1: {
+      name: '도보'
+    },
+    2: {
+      name: '자전거'
+    },
+    3: {
+      name: '오토바이'
+    },
+    4: {
+      name: '차량'
+    },
   }
-
 };
 
 
 export default {
-  node: category.node
+  node: category.node,
+  delivery: category.delivery,
+  runner: category.runner
 };

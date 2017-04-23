@@ -43,7 +43,9 @@ const refs = {
   order: {
     root: orderRef,
     properties: orderPropertiesRef,
-    itemInfo: orderPropertiesRef.child('itemInfo'),
+    dest: orderPropertiesRef.child('dest'),
+    regItem: orderPropertiesRef.child('regItem'),
+    customItem: orderPropertiesRef.child('customItem'),
     paymentDetail: orderPropertiesRef.child('paymentDetail'),
     calculateDetail: orderPropertiesRef.child('calculateDetail'),
     evalFromUser: orderPropertiesRef.child('evalFromUser'),
@@ -90,11 +92,7 @@ const defaultSchema = {
     root: {
       rId: null,
       rImg: null,
-      EDP: null,
       RDP: null,
-    },
-    itemInfo: {
-
     },
     evalFromUser: {
       m: 3,

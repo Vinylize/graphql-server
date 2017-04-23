@@ -9,6 +9,8 @@ import {
 } from 'graphql';
 
 import NodeType from '../type/node.type';
+import { OrderType } from '../type/order.type';
+
 import category from '../../shared/category/category';
 
 import {
@@ -169,6 +171,26 @@ const UserType = new GraphQLObjectType({
         refs.user.address.child(source.id).once('value')
             .then(snap => resolve(snap.val()))
             .catch(reject);
+      })
+    },
+    orderHistory: {
+      type: new GraphQLList(OrderType),
+      resolve: source => new Promise((resolve, reject) => {
+        refs.order.root.orderByChild('oId').equalTo(source.id).once('value')
+          .then(snap => resolve(
+            Object.keys(snap.val())
+            .map(key => snap.val()[key])
+            .sort((a, b) => b.cAt - a.cAt))
+          )
+          .catch(reject);
+      })
+    },
+    runnerHistory: {
+      type: new GraphQLList(OrderType),
+      resolve: source => new Promise((resolve, reject) => {
+        refs.order.orderByChild('rId').equalTo(source.id).once('value')
+          .then(snap => resolve(snap.val()))
+          .catch(reject);
       })
     },
     phoneVerificationInfo: {

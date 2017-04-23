@@ -8,7 +8,7 @@
     "start": "gulp server",
     "lint": "eslint --ignore-path .gitignore src"
   },
-  "pre-commit": ["lint","test"],
+  "pre-commit": ["lint"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Vinylize/vinyl-server.git"
