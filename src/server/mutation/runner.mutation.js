@@ -32,8 +32,32 @@ const runnerAgreeMutation = {
   })
 };
 
+const runnerApplyFirstJudgeMutation = {
+  name: 'runnerApplyFirstJudge',
+  description: 'runner apply at first judgement',
+  inputFields: {
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ NULL }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      const newRef = refs.user.root.child(user.uid);
+      return newRef.child('idURL').once('value')
+      .then((snap) => {
+        if (snap.val()) return resolve();
+        return reject('Upload identification image first.');
+      })
+      .then(() => newRef.set({ isWJ: true }))
+      .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
 const RunnerMutation = {
-  runnerAgree: mutationWithClientMutationId(runnerAgreeMutation)
+  runnerAgree: mutationWithClientMutationId(runnerAgreeMutation),
+  runnerApplyFirstJudge: mutationWithClientMutationId(runnerApplyFirstJudgeMutation)
 };
 
 export default RunnerMutation;

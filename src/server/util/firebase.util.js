@@ -93,6 +93,7 @@ const defaultSchema = {
       rId: null,
       rImg: null,
       RDP: null,
+      isWJ: false
     },
     evalFromUser: {
       m: 3,
