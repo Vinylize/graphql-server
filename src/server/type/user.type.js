@@ -231,22 +231,26 @@ const UserType = new GraphQLObjectType({
           radius
         });
         const p = [];
-        geoQuery.on('key_entered', (key, location, distance) => {
+        geoQuery.on('key_entered', (key, location, d) => {
           p.push(new Promise(nResolve => refs.node.root.child(key)
               .once('value')
-              .then(snap => nResolve({ ...snap.val(), distance }))));
+              .then(snap => nResolve({ ...snap.val(),
+                distance: d * 1.2,
+                formattedDistance: Math.ceil(d * 1.2 * 10) < 10 ?
+                `${Math.ceil(d * 1.2 * 10) * 100}m` : `${(d * 1.2).toFixed(1)}km`
+              }))));
         });
 
         geoQuery.on('ready', () => {
           Promise.all(p).then((result) => {
             if (c1 === 0) {
-              return resolve(result);
+              return resolve(result.sort((a, b) => a.distance - b.distance));
             }
-            const c1Result = result.filter(node => node.c1 === c1);
+            const c1Result = result.filter(node => node.c1 === c1).sort((a, b) => a.distance - b.distance);
             if (!c2 || c2 === 0) {
               return resolve(c1Result);
             }
-            return resolve(c1Result.filter(node => node.c2 === c2));
+            return resolve(c1Result.filter(node => node.c2 === c2).sort((a, b) => a.distance - b.distance));
           });
           geoQuery.cancel();
         });
