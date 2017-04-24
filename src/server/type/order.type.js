@@ -93,9 +93,11 @@ const OrderType = new GraphQLObjectType({
     id: { type: GraphQLString },
     nId: {
       type: NodeType,
-      resolve: () => {
-
-      }
+      resolve: source => new Promise((resolve, reject) => {
+        refs.node.root.child(source.nId).once('value')
+          .then(snap => resolve(snap.val()))
+          .catch(reject);
+      })
     },
     oId: {
       type: UserType,
