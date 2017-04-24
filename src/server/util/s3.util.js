@@ -10,7 +10,7 @@ const s3BaseUrl = 'https://s3.ap-northeast-2.amazonaws.com/';
 const s3Keys = {
   node: 'nodeImage',
   profile: 'profileImage',
-  identification: 'identification'
+  id: 'idImage'
 };
 
 export {

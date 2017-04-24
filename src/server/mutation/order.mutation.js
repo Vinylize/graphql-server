@@ -71,26 +71,34 @@ const userCreateOrderMutation = {
         // Create new order root in firebase.
       if (regItems.length === 0 && customItems.length === 0) {
         // if there is no item.
-        reject('There is no items selected.');
+        return reject('There is no items selected.');
       }
       const newRef = refs.order.root.push();
       const newOrderKey = newRef.key;
-      return calcPrice(nId, regItems, [dest.lat, dest.lon])
-      .then((result) => {
-        newRef.set({
-          id: newOrderKey,
-          oId: user.uid,
-          nId,
-          dC,
-          rC,
-          curr,
-          // TODO : impl total product price.
-          tP: result[1],
-          // TODO : impl delivery price calculation logic.
-          eDP: result[0],
-          cAt: Date.now(),
-          ...defaultSchema.order.root,
+
+      // check node is existing.
+      return refs.node.root.child(nId).once('value')
+        .then((snap) => {
+          if (!snap.val()) {
+            return reject('Cannot find node.');
+          }
+          return calcPrice(nId, regItems, [dest.lat, dest.lon]);
         })
+        .then((result) => {
+          newRef.set({
+            id: newOrderKey,
+            oId: user.uid,
+            nId,
+            dC,
+            rC,
+            curr,
+            // TODO : impl total product price.
+            tP: result[1],
+           // TODO : impl delivery price calculation logic.
+            eDP: result[0],
+            cAt: Date.now(),
+            ...defaultSchema.order.root,
+          })
           // Create new orderPriperties in firebase.
           .then(() => refs.order.dest.child(newOrderKey).set({
             ...dest
@@ -105,7 +113,7 @@ const userCreateOrderMutation = {
             resolve({ result: newOrderKey });
           })
           .catch(reject);
-      });
+        });
     }
     return reject('This mutation needs accessToken.');
   })

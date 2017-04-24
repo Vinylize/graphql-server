@@ -42,13 +42,12 @@ const runnerApplyFirstJudgeMutation = {
   },
   mutateAndGetPayload: ({ NULL }, { user }) => new Promise((resolve, reject) => {
     if (user) {
-      const newRef = refs.user.root.child(user.uid);
-      return newRef.child('idURL').once('value')
+      return refs.user.root.child(user.uid).child('idURL').once('value')
       .then((snap) => {
         if (snap.val()) return resolve();
         return reject('Upload identification image first.');
       })
-      .then(() => newRef.set({ isWJ: true }))
+      .then(() => refs.user.root.child(user.uid).child('isWJ').set(true))
       .catch(reject);
     }
     return reject('This mutation needs accessToken.');
