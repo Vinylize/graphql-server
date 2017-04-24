@@ -210,6 +210,12 @@ const UserType = new GraphQLObjectType({
             .catch(reject);
       })
     },
+    orderStatusCategory: {
+      type: GraphQLString,
+      resolve: () => new Promise((resolve) => {
+        resolve(JSON.stringify(category.orderStatus));
+      })
+    },
     nodeCategory: {
       type: GraphQLString,
       resolve: () => new Promise((resolve) => {

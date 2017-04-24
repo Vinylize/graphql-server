@@ -10,9 +10,6 @@ import {
   refs
 } from '../util/firebase.util';
 
-import category from '../../shared/category/category';
-
-
 import UserType from './user.type';
 import NodeType from './node.type';
 
@@ -148,12 +145,6 @@ const OrderType = new GraphQLObjectType({
         refs.order.dest.child(source.id).once('value')
           .then(snap => resolve(snap.val()))
           .catch(reject))
-    },
-    statusCategory: {
-      type: GraphQLString,
-      resolve: () => new Promise((resolve) => {
-        resolve(JSON.stringify(category.orderStatus));
-      })
     },
     status: {
       type: GraphQLInt,
