@@ -10,6 +10,9 @@ import {
   refs
 } from '../util/firebase.util';
 
+import category from '../../shared/category/category';
+
+
 import UserType from './user.type';
 import NodeType from './node.type';
 
@@ -146,6 +149,43 @@ const OrderType = new GraphQLObjectType({
           .then(snap => resolve(snap.val()))
           .catch(reject))
     },
+    statusCategory: {
+      type: GraphQLString,
+      resolve: () => new Promise((resolve) => {
+        resolve(JSON.stringify(category.orderStatus));
+      })
+    },
+    status: {
+      type: GraphQLInt,
+      resolve: source => new Promise((resolve, reject) => {
+        // TODO: Need more precise implematation.
+        const expTime = 1000 * 60 * 5;
+        if (source.cancAt) {
+          // cancel from user
+          return resolve(4);
+        }
+        if (source.cAt + expTime > Date.now() && !source.rId) {
+          // waiting for runner
+          return resolve(0);
+        }
+        if (source.cAt + expTime <= Date.now() && !source.rId) {
+          // expired
+          return resolve(1);
+        }
+        if (source.rId && !source.endAt) {
+          // order ongoing
+          return resolve(2);
+        }
+        if (source.rId && source.endAt) {
+          // successfully end.
+          return resolve(3);
+        }
+        return reject('Unknown status.');
+      })
+    },
+
+    cancAt: { type: GraphQLInt },
+    cancDesc: { type: GraphQLString },
     rSAt: { type: GraphQLFloat },
     dC: { type: GraphQLInt },
     rC: { type: GraphQLInt },

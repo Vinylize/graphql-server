@@ -74,6 +74,23 @@ const category = {
     4: {
       name: '차량'
     },
+  },
+  orderStatus: {
+    0: {
+      name: '러너 매칭 중'
+    },
+    1: {
+      name: '러너 매칭 실패'
+    },
+    2: {
+      name: '배달 중'
+    },
+    3: {
+      name: '배달 완료'
+    },
+    4: {
+      name: '배달 취소'
+    },
   }
 };
 
@@ -81,5 +98,6 @@ const category = {
 export default {
   node: category.node,
   delivery: category.delivery,
-  runner: category.runner
+  runner: category.runner,
+  orderStatus: category.orderStatus
 };
