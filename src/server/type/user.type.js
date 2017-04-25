@@ -15,11 +15,11 @@ import category from '../../shared/category/category';
 
 import {
   refs
-} from '../util/firebase.util';
+} from '../util/firebase/firebase.database.util';
 
 import {
   nodeGeoFire
-} from '../util/firebase.geofire.util';
+} from '../util/firebase/firebase.geofire.util';
 
 import {
   issueToken

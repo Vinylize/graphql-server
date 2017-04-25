@@ -11,11 +11,11 @@ import {
 import {
   defaultSchema,
   refs
-} from '../util/firebase.util';
+} from '../util/firebase/firebase.database.util';
 
 import {
   nodeGeoFire
-} from '../util/firebase.geofire.util';
+} from '../util/firebase/firebase.geofire.util';
 
 const createNodeFromAdminMutation = {
   name: 'createNodeFromAdmin',

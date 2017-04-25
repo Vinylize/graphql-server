@@ -6,7 +6,7 @@ import {
   mutationWithClientMutationId
 } from 'graphql-relay';
 
-import messagingUtil from '../util/firebase.messaging.util';
+import { sendPush } from '../util/firebase/firebase.messaging.util';
 
 const sendPushMutation = {
   name: 'sendPushTest',
@@ -19,9 +19,9 @@ const sendPushMutation = {
   },
   mutateAndGetPayload: ({ registrationToken }) => new Promise((resolve, reject) =>
       // if (user) {
-       messagingUtil.sendPush(registrationToken)
-          .then(() => resolve({ result: 'OK' }))
-        .catch(reject)
+       sendPush(registrationToken)
+         .then(() => resolve({ result: 'OK' }))
+         .catch(reject)
       // }
       // return reject('This mutation needs accessToken.');
     )

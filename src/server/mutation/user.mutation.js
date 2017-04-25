@@ -9,15 +9,16 @@ import {
   mutationWithClientMutationId
 } from 'graphql-relay';
 
+import admin from '../util/firebase/firebase';
+
 import {
-  admin,
   defaultSchema,
   refs
-} from '../util/firebase.util';
+} from '../util/firebase/firebase.database.util';
 
 import {
   userGeoFire
-} from '../util/firebase.geofire.util';
+} from '../util/firebase/firebase.geofire.util';
 
 import smsUtil from '../util/sms.util';
 
@@ -215,6 +216,44 @@ const userAddAddressMutation = {
   })
 };
 
+const userUpdateDeviceTokenMutation = {
+  name: 'userUpdateDeviceToken',
+  description: 'user update fcm device token.',
+  inputFields: {
+    dt: { type: new GraphQLNonNull(GraphQLString) },
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ dt }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return refs.user.root.child(user.uid).child('dt').set(dt)
+        .then(() => resolve({ result: 'OK' }))
+        .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
+const userSetModeMutation = {
+  name: 'userSetMode',
+  description: 'user set runner or user.',
+  inputFields: {
+    mode: { type: new GraphQLNonNull(GraphQLInt) },
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ mode }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return refs.user.root.child(user.uid).child('mode').set(mode)
+        .then(() => resolve({ result: 'OK' }))
+        .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
 const UserMutation = {
   createUser: mutationWithClientMutationId(createUserMutation),
   userUpdatename: mutationWithClientMutationId(userUpdateNameMutation),
@@ -222,7 +261,9 @@ const UserMutation = {
   userRequestPhoneVerification: mutationWithClientMutationId(userRequestPhoneVerifiactionMutation),
   userResponsePhoneVerification: mutationWithClientMutationId(userResponsePhoneVerificationMutation),
   userAgree: mutationWithClientMutationId(userAgreeMutation),
-  userAddAddress: mutationWithClientMutationId(userAddAddressMutation)
+  userAddAddress: mutationWithClientMutationId(userAddAddressMutation),
+  userUpdateDeviceToken: mutationWithClientMutationId(userUpdateDeviceTokenMutation),
+  userSetMode: mutationWithClientMutationId(userSetModeMutation)
 };
 
 export default UserMutation;

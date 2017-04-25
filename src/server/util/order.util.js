@@ -1,7 +1,7 @@
 import GeoFire from 'geofire';
 import {
   nodeGeoFire
-} from './firebase.geofire.util';
+} from './firebase/firebase.geofire.util';
 
 const calcPrice = (nId, items, dest) => new Promise((resolve, reject) => {
   const defaultDistance = 100; // in meters

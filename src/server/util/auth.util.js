@@ -1,6 +1,6 @@
 import {
     admin
-} from './firebase.util';
+} from './firebase/firebase.database.util';
 
 const tempUid = 'AZpdgg8SnteR7qgOItyYn1lH0sH3';
 

@@ -13,7 +13,11 @@ import {
 import {
   defaultSchema,
   refs
-} from '../util/firebase.util';
+} from '../util/firebase/firebase.database.util';
+
+import {
+  sendOrderAllPush
+} from '../util/selectivePush.util';
 
 import calcPrice from '../util/order.util';
 
@@ -75,7 +79,10 @@ const userCreateOrderMutation = {
       }
       const newRef = refs.order.root.push();
       const newOrderKey = newRef.key;
-
+      // TODO : impl total product price.
+      // TODO : impl delivery price calculation logic.
+      let tP;
+      let eDP;
       // check node is existing.
       return refs.node.root.child(nId).once('value')
         .then((snap) => {
@@ -84,7 +91,12 @@ const userCreateOrderMutation = {
           }
           return calcPrice(nId, regItems, [dest.lat, dest.lon]);
         })
-        .then((result) => {
+        .then((priceArr) => {
+          tP = priceArr[1];
+          eDP = priceArr[0];
+          return null;
+        })
+        .then(() => {
           newRef.set({
             id: newOrderKey,
             oId: user.uid,
@@ -92,10 +104,8 @@ const userCreateOrderMutation = {
             dC,
             rC,
             curr,
-            // TODO : impl total product price.
-            tP: result[1],
-           // TODO : impl delivery price calculation logic.
-            eDP: result[0],
+            tP,
+            eDP,
             cAt: Date.now(),
             ...defaultSchema.order.root,
           })
@@ -111,6 +121,9 @@ const userCreateOrderMutation = {
           }))
           .then(() => {
             resolve({ result: newOrderKey });
+          })
+          .then(() => {
+            sendOrderAllPush({ oId: user.uid, nId, id: newOrderKey, eDP, dest, curr });
           })
           .catch(reject);
         });

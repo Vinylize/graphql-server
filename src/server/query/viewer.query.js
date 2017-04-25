@@ -1,6 +1,6 @@
 import {
   refs
-} from '../util/firebase.util';
+} from '../util/firebase/firebase.database.util';
 import UserType from '../type/user.type';
 
 const ViewerQuery = {

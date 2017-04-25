@@ -8,7 +8,7 @@ import {
 
 import {
   refs
-} from '../util/firebase.util';
+} from '../util/firebase/firebase.database.util';
 
 const runnerAgreeMutation = {
   name: 'runnerAgree',

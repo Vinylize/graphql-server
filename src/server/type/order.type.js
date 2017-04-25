@@ -8,7 +8,7 @@ import {
 
 import {
   refs
-} from '../util/firebase.util';
+} from '../util/firebase/firebase.database.util';
 
 import UserType from './user.type';
 import NodeType from './node.type';
