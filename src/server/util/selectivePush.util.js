@@ -24,7 +24,7 @@ const sendOrderAllPush = (order) => {
       const payload = {
         notification: {
           title: `새로운 배달 - ${order.eDP}${order.curr} `,
-          body: `${node.addr} ${node.n} -> ${order.n1} ${order.n2 ? order.n2 : ''}`,
+          body: `${node.addr} ${node.n} -> ${order.dest.n1} ${order.dest.n2 ? order.dest.n2 : ''}`,
         },
         data: {
           type: 'NEW_ORDER',
