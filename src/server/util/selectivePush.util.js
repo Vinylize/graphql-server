@@ -3,8 +3,6 @@ import { refs } from './firebase/firebase.database.util';
 
 // temp: send order notification to all runner or user.
 const sendOrderAllPush = (order) => {
-  console.log(order);
-
   let node = null;
   let userDeviceTokenList = [];
   // search node's info
@@ -30,7 +28,7 @@ const sendOrderAllPush = (order) => {
         },
         data: {
           type: 'NEW_ORDER',
-          data: { id: order.id }
+          data: order.id
         }
       };
 
