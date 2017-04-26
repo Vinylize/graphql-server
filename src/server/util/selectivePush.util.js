@@ -23,7 +23,7 @@ const sendOrderAllPush = (order) => {
     .then(() => {
       const payload = {
         notification: {
-          title: `새로운 배달 - ${order.eDP}${order.curr} `,
+          title: `새로운 배달 - ${order.eDP.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${order.curr} `,
           body: `${node.addr} ${node.n} -> ${order.dest.n1} ${order.dest.n2 ? order.dest.n2 : ''}`,
         },
         data: {
