@@ -15,8 +15,9 @@ const sendOrderAllPush = (order) => {
       const userList = snap.val();
       if (userList) {
         userDeviceTokenList = Object.keys(userList)
-          .map(key => userList[`${key}`].dt)
-          .filter(el => el && el.id !== order.oId);
+          .map(key => userList[`${key}`])
+          .filter(el => el.dt && el.id !== order.oId)
+          .map(el => el.dt);
       }
       return null;
     })
