@@ -175,6 +175,22 @@ const UserType = new GraphQLObjectType({
             .catch(reject);
       })
     },
+    order: {
+      type: OrderType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: (source, { id }) => new Promise((resolve, reject) => {
+        refs.order.root.child(id).once('value')
+          .then((snap) => {
+            if (snap.val()) {
+              return resolve(snap.val());
+            }
+            return reject(`there is no order id ${id}`);
+          })
+          .catch(reject);
+      })
+    },
     orderHistory: {
       type: new GraphQLList(OrderType),
       resolve: source => new Promise((resolve, reject) => {
