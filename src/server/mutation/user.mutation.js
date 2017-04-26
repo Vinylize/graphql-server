@@ -22,7 +22,6 @@ import {
 
 import smsUtil from '../util/sms.util';
 
-
 const saltRounds = 10;
 
 const createUserMutation = {
