@@ -254,6 +254,25 @@ const userSetModeMutation = {
   })
 };
 
+const userSetRunnerModeMutation = {
+  name: 'userSetRunnerMode',
+  description: 'user set runner mode(Active or inactive).',
+  inputFields: {
+    rMode: { type: new GraphQLNonNull(GraphQLInt) },
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ rMode }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return refs.user.root.child(user.uid).child('rMode').set(rMode)
+        .then(() => resolve({ result: 'OK' }))
+        .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
 const UserMutation = {
   createUser: mutationWithClientMutationId(createUserMutation),
   userUpdatename: mutationWithClientMutationId(userUpdateNameMutation),
@@ -263,7 +282,8 @@ const UserMutation = {
   userAgree: mutationWithClientMutationId(userAgreeMutation),
   userAddAddress: mutationWithClientMutationId(userAddAddressMutation),
   userUpdateDeviceToken: mutationWithClientMutationId(userUpdateDeviceTokenMutation),
-  userSetMode: mutationWithClientMutationId(userSetModeMutation)
+  userSetMode: mutationWithClientMutationId(userSetModeMutation),
+  userSetRunnerModeMutation: mutationWithClientMutationId(userSetRunnerModeMutation)
 };
 
 export default UserMutation;

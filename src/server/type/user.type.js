@@ -7,17 +7,18 @@ import {
   GraphQLString,
   GraphQLNonNull
 } from 'graphql';
+import GeoFire from 'geofire';
+
+import category from '../../shared/category/category';
 
 import NodeType from '../type/node.type';
 import { OrderType } from '../type/order.type';
 
-import category from '../../shared/category/category';
-
 import {
   refs
 } from '../util/firebase/firebase.database.util';
-
 import {
+  userGeoFire,
   nodeGeoFire
 } from '../util/firebase/firebase.geofire.util';
 
@@ -210,6 +211,31 @@ const UserType = new GraphQLObjectType({
             .catch(reject);
       })
     },
+    nearbyRunner: {
+      type: new GraphQLList(CoordinateType),
+      args: {
+        centerLat: { type: new GraphQLNonNull(GraphQLFloat) },
+        centerLon: { type: new GraphQLNonNull(GraphQLFloat) },
+        edgeLat: { type: new GraphQLNonNull(GraphQLFloat) },
+        edgeLon: { type: new GraphQLNonNull(GraphQLFloat) },
+      },
+      resolve: (source, { centerLat, centerLon, edgeLat, edgeLon }) => new Promise((resolve) => {
+        const geoQuery = userGeoFire.query({
+          center: [centerLat, centerLon],
+          radius: GeoFire.distance([centerLat, centerLon], [edgeLat, edgeLon])
+        });
+
+        const p = [];
+        geoQuery.on('key_entered', (_, location) => {
+          p.push({ lat: location[0], lon: location[1] });
+        });
+
+        geoQuery.on('ready', () => {
+          geoQuery.cancel();
+          resolve(p);
+        });
+      })
+    },
     orderStatusCategory: {
       type: GraphQLString,
       resolve: () => new Promise((resolve) => {
@@ -241,6 +267,7 @@ const UserType = new GraphQLObjectType({
           p.push(new Promise(nResolve => refs.node.root.child(key)
               .once('value')
               .then(snap => nResolve({ ...snap.val(),
+                // 1 < d < sqrt(2)
                 distance: d * 1.2,
                 formattedDistance: Math.ceil(d * 1.2 * 10) < 10 ?
                 `${Math.ceil(d * 1.2 * 10) * 100}m` : `${(d * 1.2).toFixed(1)}km`
