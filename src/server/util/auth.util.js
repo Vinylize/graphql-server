@@ -1,4 +1,7 @@
 import admin from './firebase/firebase';
+import {
+  refs
+} from './firebase/firebase.database.util';
 
 const tempUid = 'AZpdgg8SnteR7qgOItyYn1lH0sH3';
 
@@ -13,7 +16,11 @@ export default {
       return admin.auth().verifyIdToken(r.headers.authorization)
         .then((decodedToken) => {
           r.user = decodedToken;
-          return next();
+          return refs.user.root.child(r.user.uid).once('value')
+            .then((snap) => {
+              if (snap.child('permission').val() === 'admin' && snap.child('e').val() === r.user.email) r.user.permission = 'admin';
+              return next();
+            });
         })
         .catch(error => res.status(401).json({ err: error.message }));
     }

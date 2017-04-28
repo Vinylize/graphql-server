@@ -64,7 +64,10 @@ const defaultSchema = {
       isPV: false,
       p: null,
       r: 5,
-      dt: null
+      dt: null,
+      isRA: null,
+      rAAt: null,
+      isWJ: false
     },
     orderQualification: {
       isA: false,
@@ -73,8 +76,6 @@ const defaultSchema = {
     runnerQualification: {
       isA: false,
       aAt: null,
-      isFA: false,
-      fAAt: null,
       isSA: false,
       sAAt: null
     }
@@ -83,8 +84,7 @@ const defaultSchema = {
     root: {
       rId: null,
       rImg: null,
-      RDP: null,
-      isWJ: false
+      RDP: null
     },
     evalFromUser: {
       m: 3,

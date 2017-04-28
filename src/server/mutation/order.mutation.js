@@ -185,8 +185,7 @@ const userEvalOrderMutation = {
   mutateAndGetPayload: ({ oId, m, comm }, { user }) => new Promise((resolve, reject) => {
     if (user) {
       if (user.uid === oId) {
-        const newRef = refs.order.evalFromUser.child(oId);
-        return newRef.set({
+        return refs.order.evalFromUser.child(oId).set({
           m,
           comm
         })
@@ -214,8 +213,7 @@ const runnerEvalOrderMutation = {
     if (user) {
       const rId = refs.order.root.child(oId).child('rId').val();
       if (user.uid === rId) {
-        const newRef = refs.order.evalFromRunner.child(oId);
-        return newRef.set({
+        return refs.order.evalFromRunner.child(oId).set({
           m,
           comm
         })

@@ -1,5 +1,7 @@
 import {
   GraphQLString,
+  GraphQLFloat,
+  GraphQLNonNull
 } from 'graphql';
 
 import {
@@ -10,6 +12,10 @@ import {
   refs
 } from '../util/firebase/firebase.database.util';
 
+import {
+  userGeoFire
+} from '../util/firebase/firebase.geofire.util';
+
 const runnerAgreeMutation = {
   name: 'runnerAgree',
   description: 'runner agree agreement',
@@ -18,10 +24,9 @@ const runnerAgreeMutation = {
   outputFields: {
     result: { type: GraphQLString, resolve: payload => payload.result }
   },
-  mutateAndGetPayload: ({ NULL }, { user }) => new Promise((resolve, reject) => {
+  mutateAndGetPayload: (_, { user }) => new Promise((resolve, reject) => {
     if (user) {
-      const newRef = refs.user.runnerQualification.child(user.uid);
-      return newRef.set({
+      return refs.user.runnerQualification.child(user.uid).update({
         isA: true,
         aAt: Date.now()
       })
@@ -40,12 +45,14 @@ const runnerApplyFirstJudgeMutation = {
   outputFields: {
     result: { type: GraphQLString, resolve: payload => payload.result }
   },
-  mutateAndGetPayload: ({ NULL }, { user }) => new Promise((resolve, reject) => {
+  mutateAndGetPayload: (_, { user }) => new Promise((resolve, reject) => {
     if (user) {
-      return refs.user.root.child(user.uid).child('idURL').once('value')
+      return refs.user.root.child(user.uid).once('value')
       .then((snap) => {
-        if (snap.val()) return resolve();
-        return reject('Upload identification image first.');
+        if (!snap.child('idUrl').val()) return reject('Upload identification image first.');
+        if (!snap.child('isPV').val()) return reject('Verify your phone first.');
+        if (snap.child('isRA').val()) return reject('You are already a runner.');
+        return resolve();
       })
       .then(() => refs.user.root.child(user.uid).child('isWJ').set(true))
       .catch(reject);
@@ -54,9 +61,33 @@ const runnerApplyFirstJudgeMutation = {
   })
 };
 
+const runnerUpdateCoordinateMutation = {
+  name: 'runnerUpdateCoordinate',
+  description: 'runner update coordinate',
+  inputFields: {
+    lat: { type: new GraphQLNonNull(GraphQLFloat) },
+    lon: { type: new GraphQLNonNull(GraphQLFloat) }
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ lat, lon }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return userGeoFire.set(user.uid, [lat, lon])
+        .then(() => {
+          resolve({ result: 'OK' });
+        }, (error) => {
+          reject(error);
+        });
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
 const RunnerMutation = {
   runnerAgree: mutationWithClientMutationId(runnerAgreeMutation),
-  runnerApplyFirstJudge: mutationWithClientMutationId(runnerApplyFirstJudgeMutation)
+  runnerApplyFirstJudge: mutationWithClientMutationId(runnerApplyFirstJudgeMutation),
+  runnerUpdateCoordinate: mutationWithClientMutationId(runnerUpdateCoordinateMutation)
 };
 
 export default RunnerMutation;

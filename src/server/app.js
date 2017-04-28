@@ -17,6 +17,7 @@ import NodeMutation from './mutation/node.mutation';
 import PartnerMutation from './mutation/partner.mutation';
 import UploadMutation from './mutation/upload.mutation';
 import PushMutation from './mutation/push.mutation';
+import AdminMutation from './mutation/admin.mutation';
 
 import ViewerQuery from './query/viewer.query';
 import UploadQuery from './query/upload.query';
@@ -59,6 +60,7 @@ const server = (afterServerStartCallback) => {
         ...NodeMutation,
         ...PartnerMutation,
         ...PushMutation,
+        ...AdminMutation
       })
     })
   });

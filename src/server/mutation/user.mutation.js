@@ -16,10 +16,6 @@ import {
   refs
 } from '../util/firebase/firebase.database.util';
 
-import {
-  userGeoFire
-} from '../util/firebase/firebase.geofire.util';
-
 import smsUtil from '../util/sms.util';
 
 const saltRounds = 10;
@@ -82,29 +78,6 @@ const userUpdateNameMutation = {
     refs.user.root.child(user.uid).child('n').set(n)
       .then(resolve({ result: 'OK' }))
       .catch(reject))
-};
-
-const userUpdateCoordinateMutation = {
-  name: 'userUpdateCoordinate',
-  description: '',
-  inputFields: {
-    lat: { type: new GraphQLNonNull(GraphQLFloat) },
-    lon: { type: new GraphQLNonNull(GraphQLFloat) }
-  },
-  outputFields: {
-    result: { type: GraphQLString, resolve: payload => payload.result }
-  },
-  mutateAndGetPayload: ({ lat, lon }, { user }) => new Promise((resolve, reject) => {
-    if (user) {
-      return userGeoFire.set(user.uid, [lat, lon])
-        .then(() => {
-          resolve({ result: 'OK' });
-        }, (error) => {
-          reject(error);
-        });
-    }
-    return reject('This mutation needs accessToken.');
-  })
 };
 
 const userRequestPhoneVerifiactionMutation = {
@@ -171,10 +144,9 @@ const userAgreeMutation = {
   outputFields: {
     result: { type: GraphQLString, resolve: payload => payload.result }
   },
-  mutateAndGetPayload: ({ NULL }, { user }) => new Promise((resolve, reject) => {
+  mutateAndGetPayload: (_, { user }) => new Promise((resolve, reject) => {
     if (user) {
-      const newRef = refs.user.userQualification.child(user.uid);
-      return newRef.set({
+      return refs.user.userQualification.child(user.uid).update({
         isA: true,
         aAt: Date.now()
       })
@@ -200,8 +172,7 @@ const userAddAddressMutation = {
   },
   mutateAndGetPayload: ({ name, mAddr, sAddr, lat, lon }, { user }) => new Promise((resolve, reject) => {
     if (user) {
-      const newRef = refs.user.address.child(user.uid).push();
-      return newRef.set({
+      return refs.user.address.child(user.uid).push().set({
         name,
         mAddr,
         sAddr,
@@ -275,7 +246,6 @@ const userSetRunnerModeMutation = {
 const UserMutation = {
   createUser: mutationWithClientMutationId(createUserMutation),
   userUpdatename: mutationWithClientMutationId(userUpdateNameMutation),
-  userUpdateCoordinate: mutationWithClientMutationId(userUpdateCoordinateMutation),
   userRequestPhoneVerification: mutationWithClientMutationId(userRequestPhoneVerifiactionMutation),
   userResponsePhoneVerification: mutationWithClientMutationId(userResponsePhoneVerificationMutation),
   userAgree: mutationWithClientMutationId(userAgreeMutation),
