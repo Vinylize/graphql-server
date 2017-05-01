@@ -265,6 +265,22 @@ const UserType = new GraphQLObjectType({
       })
     },
     node: {
+      type: NodeType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLFloat) },
+      },
+      resolve: (_, { id }) => new Promise((resolve, reject) => {
+        refs.node.root.child(id).once('value')
+          .then((snap) => {
+            if (snap.val()) {
+              return resolve(snap.val());
+            }
+            return reject(`There is no Node id ${id}`);
+          });
+      })
+
+    },
+    nodeList: {
       type: new GraphQLList(NodeType),
       args: {
         lat: { type: new GraphQLNonNull(GraphQLFloat) },
