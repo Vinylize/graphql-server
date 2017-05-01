@@ -197,9 +197,12 @@ const userUpdateDeviceTokenMutation = {
   },
   mutateAndGetPayload: ({ dt }, { user }) => new Promise((resolve, reject) => {
     if (user) {
-      return refs.user.root.child(user.uid).child('dt').set(dt)
-        .then(() => resolve({ result: 'OK' }))
-        .catch(reject);
+      if (dt !== undefined && dt !== 'undefined') {
+        return refs.user.root.child(user.uid).child('dt').set(dt)
+          .then(() => resolve({ result: 'OK' }))
+          .catch(reject);
+      }
+      return reject('Invalid access token.');
     }
     return reject('This mutation needs accessToken.');
   })
