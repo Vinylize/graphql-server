@@ -6,6 +6,8 @@ import {
   mutationWithClientMutationId
 } from 'graphql-relay';
 
+import admin from '../util/firebase/firebase';
+
 import {
   refs
 } from '../util/firebase/firebase.database.util';
@@ -165,13 +167,37 @@ const adminSendEmailToOneUserMutation = {
   })
 };
 
+const adminForceDeleteUserMutation = {
+  name: 'adminForceDeleteUser',
+  description: 'admin delete user',
+  inputFields: {
+    uid: { type: new GraphQLNonNull(GraphQLString) }
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ uid }, { user }) => new Promise((resolve, reject) => {
+    if (user && user.permission === 'admin') {
+      if (uid === user.uid) {
+        return reject('You cannot delete yourself.');
+      }
+      return admin.auth().deleteUser(uid)
+        .then(() => refs.user.root.child(uid).remove())
+        .then(() => resolve({ result: 'OK' }))
+        .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
 const AdminMutation = {
   adminApproveRunnerFirstJudge: mutationWithClientMutationId(adminApproveRunnerFirstJudgeMutation),
   adminDisapproveRunnerFirstJudge: mutationWithClientMutationId(adminDisapproveRunnerFirstJudgeMutation),
   adminDisapproveRunner: mutationWithClientMutationId(adminDisapproveRunnerMutation),
   adminBlockUser: mutationWithClientMutationId(adminBlockUserMutation),
   adminUnblockUser: mutationWithClientMutationId(adminUnblockUserMutation),
-  adminSendEmailToOneUser: mutationWithClientMutationId(adminSendEmailToOneUserMutation)
+  adminSendEmailToOneUser: mutationWithClientMutationId(adminSendEmailToOneUserMutation),
+  adminForceDeleteUser: mutationWithClientMutationId(adminForceDeleteUserMutation)
 };
 
 export default AdminMutation;

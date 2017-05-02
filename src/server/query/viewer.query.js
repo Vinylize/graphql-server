@@ -13,6 +13,7 @@ const ViewerQuery = {
             .then((snap) => {
               resolve({
                 id: user.uid,
+                isEV: user.emailVerified,
                 ...snap.val()
               });
             }).catch(console.log);

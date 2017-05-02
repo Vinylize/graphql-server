@@ -117,6 +117,7 @@ const UserType = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLString },
     e: { type: GraphQLString },
+    isEV: { type: GraphQLBoolean },
     n: { type: GraphQLString },
     cAt: { type: GraphQLInt },
     p: { type: GraphQLString },
