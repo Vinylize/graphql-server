@@ -17,6 +17,11 @@ import {
 } from '../util/firebase/firebase.database.util';
 
 import smsUtil from '../util/sms.util';
+import {
+  iamportCreateSubscribePayment,
+  iamportDeleteSubscribePayment,
+  iamportPayfromRegisterdUser
+} from '../util/payment/iamportSubscribe.util';
 
 const saltRounds = 10;
 
@@ -246,6 +251,77 @@ const userSetRunnerModeMutation = {
   })
 };
 
+// TODO : impl add multiple payment method.
+const userCreateIamportSubscribePaymentMutation = {
+  name: 'userCreateIamportSubscribePayment',
+  description: 'user set iamport subscribe payment',
+  inputFields: {
+    num: { type: new GraphQLNonNull(GraphQLString) },
+    exp: { type: new GraphQLNonNull(GraphQLString) },
+    birth: { type: new GraphQLNonNull(GraphQLString) },
+    pw2: { type: new GraphQLNonNull(GraphQLString) }
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ num, exp, birth, pw2 }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return iamportCreateSubscribePayment(user.uid, num, exp, birth, pw2)
+       .then((result) => {
+         console.log(JSON.stringify(result));
+         return resolve({ result });
+       })
+        .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
+const userDeleteIamportSubscribePaymentMutation = {
+  name: 'userDeleteIamportSubscribePayment',
+  description: 'user set iamport subscribe payment',
+  inputFields: {
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: (_, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return iamportDeleteSubscribePayment(user.uid)
+        .then((result) => {
+          console.log(JSON.stringify(result));
+          return resolve({ result });
+        })
+        .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
+const testPayfromRegisterdUserMutation = {
+  name: 'testPayfromRegisterdUser',
+  description: 'testPayfromRegisterdUser',
+  inputFields: {
+    oId: { type: new GraphQLNonNull(GraphQLString) },
+    amount: { type: new GraphQLNonNull(GraphQLFloat) }
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ oId, amount }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return iamportPayfromRegisterdUser(user.uid, oId, amount, oId)
+        .then((result) => {
+          console.log(JSON.stringify(result));
+          return resolve({ result });
+        })
+        .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
+
 const UserMutation = {
   createUser: mutationWithClientMutationId(createUserMutation),
   userUpdatename: mutationWithClientMutationId(userUpdateNameMutation),
@@ -255,7 +331,10 @@ const UserMutation = {
   userAddAddress: mutationWithClientMutationId(userAddAddressMutation),
   userUpdateDeviceToken: mutationWithClientMutationId(userUpdateDeviceTokenMutation),
   userSetMode: mutationWithClientMutationId(userSetModeMutation),
-  userSetRunnerModeMutation: mutationWithClientMutationId(userSetRunnerModeMutation)
+  userSetRunnerMode: mutationWithClientMutationId(userSetRunnerModeMutation),
+  userCreateIamportSubscribePayment: mutationWithClientMutationId(userCreateIamportSubscribePaymentMutation),
+  userDeleteIamportSubscribePayment: mutationWithClientMutationId(userDeleteIamportSubscribePaymentMutation),
+  testPayfromRegisterdUser: mutationWithClientMutationId(testPayfromRegisterdUserMutation)
 };
 
 export default UserMutation;

@@ -38,6 +38,7 @@
     "graphql-relay": "^0.4.4",
     "gulp-istanbul": "^1.1.1",
     "gulp-mocha": "^4.3.0",
+    "iamport": "^0.3.4",
     "lokka": "^1.7.0",
     "lokka-transport-http": "^1.6.1",
     "mailgun-js": "^0.10.1",

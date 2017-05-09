@@ -50,7 +50,35 @@ const sendOrderSelectivePush = () => {
   // TODO: impl this.
 };
 
+const sendOrderCatchPush = (order, user) => {
+  const payload = {
+    notification: {
+      title: '배달 시작',
+      body: `${user.name}님이 배달을 시작합니다.`,
+    },
+    data: {
+      type: 'CATCH_ORDER',
+      data: order.id
+    }
+  };
+
+  const options = {
+    priority: 'high',
+    content_available: true,
+    // expire sec
+    timeToLive: 60 * 15
+  };
+
+  refs.user.root.child(order.oId).once('value')
+    .then((snap) => {
+      if (snap.val() && snap.val().dt) {
+        sendPush(snap.val().dt, payload, options);
+      }
+    });
+};
+
 export {
   sendOrderAllPush,
-  sendOrderSelectivePush
+  sendOrderSelectivePush,
+  sendOrderCatchPush
 };

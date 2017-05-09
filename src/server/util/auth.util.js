@@ -4,12 +4,13 @@ import {
 } from './firebase/firebase.database.util';
 
 const tempUid = 'AZpdgg8SnteR7qgOItyYn1lH0sH3';
+const tempName = 'YettaTest';
 
 export default {
   apiProtector(req, res, next) {
     const r = req;
     if (r.headers.authorization === 'TT') {
-      r.user = { uid: tempUid, warn: 'this is tempUid.' };
+      r.user = { uid: tempUid, name: tempName, warn: 'this is tempUid.' };
       return next();
     }
     if (r.headers.authorization) {

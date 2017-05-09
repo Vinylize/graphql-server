@@ -16,7 +16,8 @@ import {
 } from '../util/firebase/firebase.database.util';
 
 import {
-  sendOrderAllPush
+  sendOrderAllPush,
+  sendOrderCatchPush
 } from '../util/selectivePush.util';
 
 import calcPrice from '../util/order.util';
@@ -146,26 +147,30 @@ const runnerCatchOrderMutation = {
   mutateAndGetPayload: ({ orderId }, { user }) => new Promise((resolve, reject) => {
     if (user) {
         // / TODO : Maybe transaction issue will be occurred.
+      let order;
       return refs.order.root.child(orderId).once('value')
-          .then((orderSnap) => {
-            const order = orderSnap.val();
-            if (!order) {
-              return reject('Order doesn\'t exist.');
-            }
-            if (order.oId === user.uid) {
-              return reject('Can\'t ship your port.');
-            }
-            if (order.rId === user.uid) {
-              return reject('This ship is already designated for you.');
-            }
-            if (order.rId) {
-              return reject('This ship is already designated for other user.');
-            }
-            return refs.order.root.child(orderId).child('runnerId').set(user.uid);
-          })
-          .then(() => {
-            resolve({ result: 'OK' });
-          });
+        .then((orderSnap) => {
+          order = orderSnap.val();
+          if (!order) {
+            throw new Error('Order doesn\'t exist.');
+          }
+          if (order.oId === user.uid) {
+            throw new Error('Can\'t ship your port.');
+          }
+          if (order.rId === user.uid) {
+            throw new Error('This ship is already designated for you.');
+          }
+          if (order.rId) {
+            throw new Error('This ship is already designated for other user.');
+          }
+          return refs.order.root.child(orderId).child('rId').set(user.uid);
+        })
+        .then(() => {
+        // TODO : impl use firebase database's user name data (now use firebase auth's name data)
+          sendOrderCatchPush(order, user);
+          resolve({ result: 'OK' });
+        })
+        .catch(reject);
     }
     return reject('This mutation needs accessToken.');
   })
