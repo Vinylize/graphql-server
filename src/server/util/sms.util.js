@@ -64,6 +64,6 @@ export default {
   },
 
   sendVerificationMessage(to, code) {
-    this.sendBluehouseMessage(to, `Vinyl verification code : ${code}`);
+    this.sendBluehouseMessage(to, `옜다 인증코드 [${code}] 를 입력하세요.`);
   }
 };

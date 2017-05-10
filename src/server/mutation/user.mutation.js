@@ -67,6 +67,46 @@ const createUserMutation = {
   })
 };
 
+const userSignInMutation = {
+  name: 'userSignIn',
+  description: 'user sign in to yetta server.',
+  inputFields: {
+    dt: { type: new GraphQLNonNull(GraphQLString) },
+    d: { type: new GraphQLNonNull(GraphQLString) },
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ dt, d }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      if (dt !== undefined && dt !== 'undefined') {
+        return refs.user.root.child(user.uid).update({ dt, d })
+          .then(() => resolve({ result: user.d && user.d === d ? 'OK' : 'WARN : There is another device logged in. That will be logged out.' }))
+          .catch(reject);
+      }
+      return reject('No deviceToken Error.');
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
+const userSignOutMutation = {
+  name: 'userSignOut',
+  description: 'user sign out from yetta server.',
+  inputFields: {},
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ dt, d }, { user }) => new Promise((resolve, reject) => {
+    if (user) {
+      return refs.user.root.child(user.uid).update({ dt: null, d: null })
+          .then(() => resolve({ result: 'OK' }))
+          .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
 const userUpdateNameMutation = {
   name: 'userUpdateNameMutation',
   description: 'user update their name.',
@@ -191,28 +231,6 @@ const userAddAddressMutation = {
   })
 };
 
-const userUpdateDeviceTokenMutation = {
-  name: 'userUpdateDeviceToken',
-  description: 'user update fcm device token.',
-  inputFields: {
-    dt: { type: new GraphQLNonNull(GraphQLString) },
-  },
-  outputFields: {
-    result: { type: GraphQLString, resolve: payload => payload.result }
-  },
-  mutateAndGetPayload: ({ dt }, { user }) => new Promise((resolve, reject) => {
-    if (user) {
-      if (dt !== undefined && dt !== 'undefined') {
-        return refs.user.root.child(user.uid).child('dt').set(dt)
-          .then(() => resolve({ result: 'OK' }))
-          .catch(reject);
-      }
-      return reject('Invalid access token.');
-    }
-    return reject('This mutation needs accessToken.');
-  })
-};
-
 const userSetModeMutation = {
   name: 'userSetMode',
   description: 'user set runner or user.',
@@ -324,12 +342,13 @@ const testPayfromRegisterdUserMutation = {
 
 const UserMutation = {
   createUser: mutationWithClientMutationId(createUserMutation),
+  userSignIn: mutationWithClientMutationId(userSignInMutation),
+  userSignOut: mutationWithClientMutationId(userSignOutMutation),
   userUpdatename: mutationWithClientMutationId(userUpdateNameMutation),
   userRequestPhoneVerification: mutationWithClientMutationId(userRequestPhoneVerifiactionMutation),
   userResponsePhoneVerification: mutationWithClientMutationId(userResponsePhoneVerificationMutation),
   userAgree: mutationWithClientMutationId(userAgreeMutation),
   userAddAddress: mutationWithClientMutationId(userAddAddressMutation),
-  userUpdateDeviceToken: mutationWithClientMutationId(userUpdateDeviceTokenMutation),
   userSetMode: mutationWithClientMutationId(userSetModeMutation),
   userSetRunnerMode: mutationWithClientMutationId(userSetRunnerModeMutation),
   userCreateIamportSubscribePayment: mutationWithClientMutationId(userCreateIamportSubscribePaymentMutation),
