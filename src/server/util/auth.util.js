@@ -23,13 +23,20 @@ export default {
                 r.user.permission = 'admin';
                 return next();
               }
-              if (!r.headers.device) throw new Error('No device id Error.');
+              if (!r.headers.device) {
+                throw new Error('unauthorizedError : No Device id in header.');
+              }
               if (snap.val().d && snap.val().d !== r.headers.device) {
-                throw new Error('Another device logged in. Please login again.');
+                return refs.user.root.child(r.user.uid).update({ d: null, dt: null })
+                  .then(() => {
+                    throw new Error('unauthorizedError : Another device logged in. Please login again.');
+                  })
+                  .catch((e) => { throw new Error(e); });
               }
               return next();
             });
         })
+        // Format to GraphQLError
         .catch(error => res.status(200).json({ errors: [{
           message: error.message,
           locations: error.locations,
