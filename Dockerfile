@@ -1,15 +1,17 @@
-FROM node:6.4.0
+FROM node:7.7.1
 MAINTAINER teamvinyl <vinyl.proj@gmail.com>
 
 RUN mkdir -p /app
+
 WORKDIR /app
 
-COPY package.json /app
+ADD . /app
 
+RUN npm install -g gulp
 RUN npm install
 
 COPY . /app
 
-EXPOSE 5000
+EXPOSE 5002
 
-CMD [ "npm", "start" ]
+CMD [ "gulp", "dev" ]
