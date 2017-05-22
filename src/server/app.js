@@ -33,7 +33,7 @@ const server = (afterServerStartCallback) => {
   app.use(Raven.errorHandler());
 
   app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://admin.yetta.co');
+    res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Headers', 'X-Requested-With,authorization,content-type');
     res.header('Access-Control-Allow-Methods', 'POST');
@@ -105,7 +105,7 @@ const server = (afterServerStartCallback) => {
   app.post(
     '/graphql/upload',
     authUtil.apiProtector,
-    multer({ storage }).single('file'),
+    multer({ storage, limits: { fieldSize: 30 * 1000 * 1000, } }).single('file'),
     graphqlHTTP((request) => {
       const startTime = Date.now();
       return {
@@ -114,7 +114,7 @@ const server = (afterServerStartCallback) => {
         extensions(ext) {
           // TODO : Find why `logger.debug(ext.result)` doesn't work on this part.
           // logger.debug(ext.result);
-          console.log(ext);
+          console.log(ext.result);
           return { runTime: `${Date.now() - startTime}ms` };
         }
       };

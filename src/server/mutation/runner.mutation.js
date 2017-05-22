@@ -49,12 +49,12 @@ const runnerApplyFirstJudgeMutation = {
     if (user) {
       return refs.user.root.child(user.uid).once('value')
       .then((snap) => {
-        if (!snap.child('idUrl').val()) return reject('Upload identification image first.');
-        if (!snap.child('isPV').val()) return reject('Verify your phone first.');
-        if (snap.child('isRA').val()) return reject('You are already a runner.');
-        return resolve();
+        if (!snap.child('idUrl').val()) throw new Error('Upload identification image first.');
+        if (!snap.child('isPV').val()) throw new Error('Verify your phone first.');
+        if (snap.child('isRA').val()) throw new Error('You are already a runner.');
+        return refs.user.root.child(user.uid).child('isWJ').set(true);
       })
-      .then(() => refs.user.root.child(user.uid).child('isWJ').set(true))
+      .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
     return reject('This mutation needs accessToken.');
