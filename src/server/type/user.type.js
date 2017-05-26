@@ -31,7 +31,7 @@ const UserQualificationType = new GraphQLObjectType({
   description: 'Type of properties of port.',
   fields: () => ({
     isA: { type: GraphQLBoolean },
-    aAt: { type: GraphQLInt }
+    aAt: { type: GraphQLFloat }
   })
 });
 
@@ -40,9 +40,9 @@ const RunnerQualificationType = new GraphQLObjectType({
   description: 'Type of properties of ship.',
   fields: () => ({
     isA: { type: GraphQLBoolean },
-    aAt: { type: GraphQLInt },
+    aAt: { type: GraphQLFloat },
     isSA: { type: GraphQLBoolean },
-    sAAt: { type: GraphQLInt }
+    sAAt: { type: GraphQLFloat }
   })
 });
 
@@ -92,8 +92,8 @@ const PhoneVerificationInfoType = new GraphQLObjectType({
   description: 'phoneVerificationInfoType of user.',
   fields: () => ({
     code: { type: GraphQLInt },
-    eAt: { type: GraphQLInt },
-    vAt: { type: GraphQLInt }
+    eAt: { type: GraphQLFloat },
+    vAt: { type: GraphQLFloat }
   })
 });
 
@@ -102,9 +102,9 @@ const HelpType = new GraphQLObjectType({
   description: 'helpType of user.',
   fields: () => ({
     comm: { type: GraphQLString },
-    cAt: { type: GraphQLInt },
+    cAt: { type: GraphQLFloat },
     ans: { type: GraphQLString },
-    ansAt: { type: GraphQLInt }
+    ansAt: { type: GraphQLFloat }
   })
 });
 
@@ -118,7 +118,7 @@ const UserType = new GraphQLObjectType({
     id: { type: GraphQLString },
     e: { type: GraphQLString },
     n: { type: GraphQLString },
-    cAt: { type: GraphQLInt },
+    cAt: { type: GraphQLFloat },
     p: { type: GraphQLString },
     isPV: { type: GraphQLBoolean },
     r: { type: GraphQLFloat },
@@ -127,6 +127,7 @@ const UserType = new GraphQLObjectType({
     isWJ: { type: GraphQLBoolean },
     isRA: { type: GraphQLBoolean },
     mode: { type: GraphQLInt },
+    rAAt: { type: GraphQLFloat },
     rAAt: { type: GraphQLInt },
     isB: { type: GraphQLBoolean },
     coordinate: {

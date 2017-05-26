@@ -175,7 +175,7 @@ const OrderType = new GraphQLObjectType({
       })
     },
 
-    cancAt: { type: GraphQLInt },
+    cancAt: { type: GraphQLFloat },
     cancDesc: { type: GraphQLString },
     rSAt: { type: GraphQLFloat },
     dC: { type: GraphQLInt },

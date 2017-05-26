@@ -1,7 +1,7 @@
 import {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLInt
+  GraphQLFloat
 } from 'graphql';
 
 const PartnerType = new GraphQLObjectType({
@@ -12,7 +12,7 @@ const PartnerType = new GraphQLObjectType({
     pw: { type: GraphQLString },
     name: { type: GraphQLString },
     p: { type: GraphQLString },
-    cAt: { type: GraphQLInt }
+    cAt: { type: GraphQLFloat }
   })
 });
 

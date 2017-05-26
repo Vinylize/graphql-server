@@ -18,7 +18,7 @@ const NodeType = new GraphQLObjectType({
     c1: { type: GraphQLString },
     c2: { type: GraphQLString },
     like: { type: GraphQLInt },
-    cAt: { type: GraphQLInt },
+    cAt: { type: GraphQLFloat },
     distance: { type: GraphQLFloat },
     formattedDistance: { type: GraphQLString },
   })
