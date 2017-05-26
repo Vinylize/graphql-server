@@ -126,6 +126,7 @@ const UserType = new GraphQLObjectType({
     idUrl: { type: GraphQLString },
     isWJ: { type: GraphQLBoolean },
     isRA: { type: GraphQLBoolean },
+    mode: { type: GraphQLInt },
     rAAt: { type: GraphQLInt },
     isB: { type: GraphQLBoolean },
     coordinate: {
