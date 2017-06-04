@@ -39,7 +39,7 @@ const startServer = (afterServerStartCallback) => {
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With,authorization,content-type');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With,authorization,permission,content-type');
     res.header('Access-Control-Allow-Methods', 'POST');
     next();
   });
@@ -81,7 +81,7 @@ const startServer = (afterServerStartCallback) => {
           // TODO : Find why `logger.debug(ext.result)` doesn't work on this part.
           // logger.debug(ext.result);
           console.log(ext.result);
-          return { runTime: `${Date.now() - startTime}ms` };
+          return { runTime: `${Date.now() - startTime}ms`, auth: { user: request.user, token: request.token } };
         }
       };
     }));

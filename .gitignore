@@ -101,6 +101,9 @@ firebaseProd.json
 #dist folder
 dist
 dist-test
+migration
+seeders
+seed
 
 .vscode
 

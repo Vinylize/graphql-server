@@ -107,7 +107,7 @@ const defaultSchema = {
   partner: {
     root: {
     },
-    qualification: {
+    partnerQualification: {
       isA: false,
       aAt: null,
       isFA: false,

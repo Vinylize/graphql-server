@@ -13,8 +13,10 @@ const SOURCE = {
   SERVER: 'src/server/**/*.js',
   SHARED: 'src/shared/**/*.js',
   TEST: 'src/test/**/*.js',
+  MIGRATION: 'src/server/util/sequelize/*.js',
   DIST: 'dist',
-  DIST_TEST: 'dist-test'
+  DIST_TEST: 'dist-test',
+  DIST_MIGRATION: 'migration'
 };
 
 gulp.task('dev', ['build'], () => {
@@ -68,5 +70,12 @@ gulp.task('build:test', ['clean:test'], () => gulp.src(SOURCE.ALL)
   .pipe(sourcemaps.write())
   .pipe(gulp.dest(SOURCE.DIST_TEST)));
 
+gulp.task('build:migration', ['clean:migration'], () => gulp.src(SOURCE.MIGRATION)
+  .pipe(sourcemaps.init())
+  .pipe(babel())
+  .pipe(sourcemaps.write())
+  .pipe(gulp.dest(SOURCE.DIST_MIGRATION)));
+
 gulp.task('clean', () => rimraf.sync(SOURCE.DIST));
 gulp.task('clean:test', () => rimraf.sync(SOURCE.DIST_TEST));
+gulp.task('clean:migration', () => rimraf.sync(SOURCE.DIST_MIGRATION));

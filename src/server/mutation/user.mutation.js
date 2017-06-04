@@ -16,6 +16,11 @@ import {
   refs
 } from '../util/firebase/firebase.database.util';
 
+import {
+  mRefs,
+  mDefaultSchema
+} from '../util/sequelize/sequelize.database.util';
+
 import smsUtil from '../util/sms.util';
 import {
   iamportCreateSubscribePayment,
@@ -48,22 +53,31 @@ const createUserMutation = {
       displayName: n,
       disabled: false
     })
-        .then(createdUser => refs.user.root.child(createdUser.uid).set({
-          id: createdUser.uid,
+      .then(createdUser => refs.user.root.child(createdUser.uid).set({
+        id: createdUser.uid,
+        e,
+        n,
+        pw: bcrypt.hashSync(pw, saltRounds),
+        cAt: Date.now(),
+        ...defaultSchema.user.root
+      })
+        .then(() => refs.user.userQualification.child(createdUser.uid).set({
+          ...defaultSchema.user.orderQualification
+        }))
+        .then(() => refs.user.runnerQualification.child(createdUser.uid).set({
+          ...defaultSchema.user.runnerQualification
+        }))
+        // mysql
+        .then(() => mRefs.user.root.createData({
           e,
           n,
           pw: bcrypt.hashSync(pw, saltRounds),
           cAt: Date.now(),
-          ...defaultSchema.user.root
-        })
-            .then(() => refs.user.userQualification.child(createdUser.uid).set({
-              ...defaultSchema.user.orderQualification
-            }))
-            .then(() => refs.user.runnerQualification.child(createdUser.uid).set({
-              ...defaultSchema.user.runnerQualification
-            })))
-        .then(() => resolve({ result: 'OK' }))
-        .catch(reject);
+          ...mDefaultSchema.user.root
+        }, createdUser.uid))
+      )
+      .then(() => resolve({ result: 'OK' }))
+      .catch(reject);
   })
 };
 
@@ -81,7 +95,9 @@ const userSignInMutation = {
     if (user) {
       if (dt !== undefined && dt !== 'undefined') {
         return refs.user.root.child(user.uid).update({ dt, d })
-          .then(() => resolve({ result: !user.d || user.d === d ? 'OK' : 'WARN : There is another device logged in. That will be logged out.' }))
+        // mysql
+          .then(() => mRefs.user.root.updateData({ dt, d }, { where: { row_id: user.uid } }))
+          .then(() => resolve({ result: user.d && user.d === d ? 'OK' : 'WARN : There is another device logged in. That will be logged out.' }))
           .catch(reject);
       }
       return reject('No deviceToken Error.');
@@ -100,15 +116,17 @@ const userSignOutMutation = {
   mutateAndGetPayload: ({ dt, d }, { user }) => new Promise((resolve, reject) => {
     if (user) {
       return refs.user.root.child(user.uid).update({ dt: null, d: null })
-          .then(() => resolve({ result: 'OK' }))
-          .catch(reject);
+        // mysql
+        .then(() => mRefs.user.root.updateData({ dt: null, d: null }, { where: { row_id: user.uid } }))
+        .then(() => resolve({ result: 'OK' }))
+        .catch(reject);
     }
     return reject('This mutation needs accessToken.');
   })
 };
 
 const userUpdateNameMutation = {
-  name: 'userUpdateNameMutation',
+  name: 'userUpdateName',
   description: 'user update their name.',
   inputFields: {
     n: { type: new GraphQLNonNull(GraphQLString) },
@@ -121,6 +139,8 @@ const userUpdateNameMutation = {
   },
   mutateAndGetPayload: ({ n }, { user }) => new Promise((resolve, reject) =>
     refs.user.root.child(user.uid).child('n').set(n)
+    // mysql
+    .then(() => mRefs.user.root.updateData({ n }, { where: { row_id: user.uid } }))
       .then(resolve({ result: 'OK' }))
       .catch(reject))
 };
@@ -138,11 +158,18 @@ const userRequestPhoneVerifiactionMutation = {
     if (user) {
       const code = smsUtil.getRandomCode();
       smsUtil.sendVerificationMessage(p, code);
+      // mysql
       return refs.user.phoneVerificationInfo.child(user.uid).set({
         code,
         eAt: Date.now() + (120 * 1000)
       })
         .then(() => refs.user.root.child(user.uid).child('p').set(p))
+        // mysql
+        .then(() => mRefs.user.root.updateData({
+          p,
+          code,
+          eAt: Date.now() + (120 * 1000)
+        }, { where: { row_id: user.uid } }))
         .then(() => resolve({ result: 'OK' }))
         .catch(reject);
     }
@@ -161,21 +188,34 @@ const userResponsePhoneVerificationMutation = {
   },
   mutateAndGetPayload: ({ code }, { user }) => new Promise((resolve, reject) => {
     if (user) {
+      // mysql
       return refs.user.phoneVerificationInfo.child(user.uid).once('value')
-          .then((snap) => {
-            if (snap.val().code === code && snap.val().eAt > Date.now()) {
-              return;
+        .then((snap) => {
+          if (snap.val().code === code && snap.val().eAt > Date.now()) {
+            return Promise.resolve();
+          }
+          if (snap.val().eAt < Date.now()) {
+            // top priority
+            return reject('time exceeded.');
+          }
+          return reject('wrong code.');
+        })
+        .then(() => refs.user.root.child(user.uid).child('isPV').set(true))
+        .then(() => refs.user.phoneVerificationInfo.child(user.uid).child('vAt').set(Date.now()))
+        // mysql
+        .then(() => mRefs.user.root.findDataById(['code', 'eAt'], user.uid)
+          .then((users) => {
+            if (users[0].code === code && users[0].eAt > Date.now()) {
+              return Promise.resolve();
             }
-            if (snap.val().eAt < Date.now()) {
-              // top priority
-              throw new Error('Time Exceed.');
+            if (users[0].eAt < Date.now()) {
+              return reject('time exceeded.');
             }
             throw new Error('Wrong code.');
           })
-          .then(() => refs.user.root.child(user.uid).child('isPV').set(true))
-          .then(() => refs.user.phoneVerificationInfo.child(user.uid).child('vAt').set(Date.now()))
-          .then(() => resolve({ result: 'OK' }))
-          .catch(reject);
+          .then(() => mRefs.user.root.updateData({ isPV: true, vAt: Date.now() }, { where: { row_id: user.uid } })))
+        .then(() => resolve({ result: 'OK' }))
+        .catch(reject);
     }
     return reject('This mutation needs accessToken.');
   })
@@ -195,6 +235,8 @@ const userAgreeMutation = {
         isA: true,
         aAt: Date.now()
       })
+      // mysql
+      .then(() => mRefs.user.root.updateData({ isUA: true, uAAt: Date.now() }, { where: { row_id: user.uid } }))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -224,6 +266,14 @@ const userAddAddressMutation = {
         lat,
         lon
       })
+      // mysql
+      .then(() => mRefs.user.userAddress.createData({
+        name,
+        mAddr,
+        sAddr,
+        lat,
+        lon
+      }, user.uid))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -243,6 +293,8 @@ const userSetModeMutation = {
   mutateAndGetPayload: ({ mode }, { user }) => new Promise((resolve, reject) => {
     if (user) {
       return refs.user.root.child(user.uid).child('mode').set(mode)
+        // mysql
+        .then(() => mRefs.user.root.updateData({ mode }, { where: { row_id: user.uid } }))
         .then(() => resolve({ result: 'OK' }))
         .catch(reject);
     }
@@ -262,6 +314,8 @@ const userSetRunnerModeMutation = {
   mutateAndGetPayload: ({ rMode }, { user }) => new Promise((resolve, reject) => {
     if (user) {
       return refs.user.root.child(user.uid).child('rMode').set(rMode)
+        // mysql
+        .then(() => mRefs.user.root.updateData({ rMode }, { where: { row_id: user.uid } }))
         .then(() => resolve({ result: 'OK' }))
         .catch(reject);
     }
@@ -344,7 +398,7 @@ const UserMutation = {
   createUser: mutationWithClientMutationId(createUserMutation),
   userSignIn: mutationWithClientMutationId(userSignInMutation),
   userSignOut: mutationWithClientMutationId(userSignOutMutation),
-  userUpdatename: mutationWithClientMutationId(userUpdateNameMutation),
+  userUpdateName: mutationWithClientMutationId(userUpdateNameMutation),
   userRequestPhoneVerification: mutationWithClientMutationId(userRequestPhoneVerifiactionMutation),
   userResponsePhoneVerification: mutationWithClientMutationId(userResponsePhoneVerificationMutation),
   userAgree: mutationWithClientMutationId(userAgreeMutation),

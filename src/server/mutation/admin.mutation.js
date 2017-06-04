@@ -1,7 +1,10 @@
 import {
   GraphQLString,
-  GraphQLNonNull
+  GraphQLInt,
+  GraphQLNonNull,
+  GraphQLObjectType
 } from 'graphql';
+
 import {
   mutationWithClientMutationId
 } from 'graphql-relay';
@@ -9,6 +12,10 @@ import {
 import {
   refs
 } from '../util/firebase/firebase.database.util';
+
+import {
+  mRefs
+} from '../util/sequelize/sequelize.database.util';
 
 import {
   topics,
@@ -19,6 +26,101 @@ import {
   mailType,
   sendMail
 } from '../util/mail.util';
+
+import {
+  setToken,
+  decodeToken,
+  getAuth
+} from '../util/auth/auth.jwt';
+
+const authUserType = new GraphQLObjectType({
+  name: 'authUser',
+  description: 'auth user as output',
+  fields: () => ({
+    uid: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: user => user.uid
+    },
+    e: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: user => user.e
+    },
+    n: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: user => user.n
+    },
+    permission: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: user => user.permission
+    },
+    exp: {
+      type: new GraphQLNonNull(GraphQLInt),
+      resolve: user => user.exp
+    }
+  })
+});
+
+const adminSignInMutation = {
+  name: 'adminSignIn',
+  description: 'admin sign in',
+  inputFields: {
+    e: { type: new GraphQLNonNull(GraphQLString) },
+    pw: { type: new GraphQLNonNull(GraphQLString) }
+  },
+  outputFields: {
+    user: { type: authUserType, resolve: payload => payload.user },
+    token: { type: new GraphQLNonNull(GraphQLString), resolve: payload => payload.token }
+  },
+  mutateAndGetPayload: ({ e, pw }) => new Promise((resolve, reject) => getAuth(e, pw, true)
+    .then(auth => resolve(auth))
+    .catch(reject))
+};
+
+const adminSignOutMutation = {
+  name: 'adminSignOut',
+  description: 'admin sign out',
+  inputFields: {
+    token: { type: new GraphQLNonNull(GraphQLString) }
+  },
+  outputFields: {
+    result: { type: GraphQLString, resolve: payload => payload.result }
+  },
+  mutateAndGetPayload: ({ token }, { user }) => new Promise((resolve, reject) => {
+    if (user && user.permission === 'admin') {
+      // additional logic needed
+      decodeToken(token)
+      .then(() => resolve({ result: 'OK' }))
+      .catch(reject);
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
+const adminRefreshAuthMutation = {
+  name: 'adminRefreshAuth',
+  description: 'admin refeshes auth',
+  inputFields: {
+    token: { type: new GraphQLNonNull(GraphQLString) }
+  },
+  outputFields: {
+    user: { type: authUserType, resolve: payload => payload.user },
+    token: { type: GraphQLString, resolve: payload => payload.token }
+  },
+  mutateAndGetPayload: ({ token }, { user }) => new Promise((resolve, reject) => {
+    if (user && user.permission === 'admin') {
+      return decodeToken(token)
+      .then(result1 => setToken({
+        uid: result1.user.uid,
+        e: result1.user.e,
+        n: result1.user.n,
+        permission: result1.user.permission
+      }))
+      .then(result2 => resolve({ user: result2.user, token: result2.token }))
+      .catch(err => reject(err));
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
 
 const adminApproveRunnerFirstJudgeMutation = {
   name: 'adminApproveRunnerFirstJudge',
@@ -47,6 +149,8 @@ const adminApproveRunnerFirstJudgeMutation = {
         isRA: true,
         rAAt: Date.now()
       })
+      // mysql
+        .then(() => mRefs.user.root.updateData({ isWJ: false, isRA: true, rAAt: Date.now() }, { where: { row_id: uid } }))
         .then(() => {
           produceMessage(topics.ADMIN_APPROVE_RUNNER, uid);
         })
@@ -84,6 +188,7 @@ const adminDisapproveRunnerFirstJudgeMutation = {
         rAAt: null
         // A 'Reason' of disapproving runner can be added
       })
+        .then(() => mRefs.user.root.updateData({ isWJ: false, isRA: false, rAAt: null }, { where: { row_id: uid } }))
         .then(() => {
           produceMessage(topics.ADMIN_DISAPPROVE_RUNNER, uid);
         })
@@ -110,6 +215,8 @@ const adminDisapproveRunnerMutation = {
         isRA: false,
         rAAt: null
       })
+      // mysql
+      .then(() => mRefs.user.root.updateData({ isWJ: false, isRA: false, rAAt: null }, { where: { row_id: uid } }))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -129,6 +236,7 @@ const adminBlockUserMutation = {
   mutateAndGetPayload: ({ uid }, { user }) => new Promise((resolve, reject) => {
     if (user && user.permission === 'admin') {
       return refs.user.root.child(uid).child('isB').set(true)
+      .then(() => mRefs.user.root.updateData({ isB: true }, { where: { row_id: uid } }))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -148,6 +256,7 @@ const adminUnblockUserMutation = {
   mutateAndGetPayload: ({ uid }, { user }) => new Promise((resolve, reject) => {
     if (user && user.permission === 'admin') {
       return refs.user.root.child(uid).child('isB').set(false)
+      .then(() => mRefs.user.root.updateData({ isB: false }, { where: { row_id: uid } }))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -177,6 +286,9 @@ const adminSendEmailToOneUserMutation = {
 };
 
 const AdminMutation = {
+  adminSignIn: mutationWithClientMutationId(adminSignInMutation),
+  adminSignOut: mutationWithClientMutationId(adminSignOutMutation),
+  adminRefreshAuth: mutationWithClientMutationId(adminRefreshAuthMutation),
   adminApproveRunnerFirstJudge: mutationWithClientMutationId(adminApproveRunnerFirstJudgeMutation),
   adminDisapproveRunnerFirstJudge: mutationWithClientMutationId(adminDisapproveRunnerFirstJudgeMutation),
   adminDisapproveRunner: mutationWithClientMutationId(adminDisapproveRunnerMutation),
