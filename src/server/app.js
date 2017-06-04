@@ -8,6 +8,9 @@ import graphqlHTTP from 'express-graphql';
 import multer from 'multer';
 import logger from 'winston';
 
+import {
+  startKafkaProducer
+} from './util/kafka.util';
 import authUtil from './util/auth.util';
 
 import UserMutation from './mutation/user.mutation';
@@ -22,7 +25,8 @@ import AdminMutation from './mutation/admin.mutation';
 import ViewerQuery from './query/viewer.query';
 import UploadQuery from './query/upload.query';
 
-const server = (afterServerStartCallback) => {
+
+const startServer = (afterServerStartCallback) => {
   const app = express();
   Raven.config('https://57a96f80689847c4aeb5a98f5d441512:c3b4d3fb0f634eeaac8d795a29a0f378@sentry.io/162246').install();
 
@@ -128,9 +132,12 @@ const server = (afterServerStartCallback) => {
 };
 
 if (process.env.NODE_ENV !== 'test') {
-  server(() => {
-    logger.info(`Yetta api ${process.env.NODE_ENV} server listening on port ${process.env.PORT}!`);
+  startKafkaProducer(() => {
+    logger.info('Yetta graphql-server kafka producer ready.');
+    startServer(() => {
+      logger.info(`Yetta api ${process.env.NODE_ENV} server listening on port ${process.env.PORT}!`);
+    });
   });
 }
 
-export default server;
+export default startServer;

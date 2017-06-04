@@ -11,6 +11,11 @@ import {
 } from '../util/firebase/firebase.database.util';
 
 import {
+  topics,
+  produceMessage
+} from '../util/kafka.util';
+
+import {
   mailType,
   sendMail
 } from '../util/mail.util';
@@ -42,8 +47,11 @@ const adminApproveRunnerFirstJudgeMutation = {
         isRA: true,
         rAAt: Date.now()
       })
-      .then(() => resolve({ result: 'OK' }))
-      .catch(reject);
+        .then(() => {
+          produceMessage(topics.ADMIN_APPROVE_RUNNER, uid);
+        })
+        .then(() => resolve({ result: 'OK' }))
+        .catch(reject);
     }
     return reject('This mutation needs accessToken.');
   })
@@ -76,8 +84,11 @@ const adminDisapproveRunnerFirstJudgeMutation = {
         rAAt: null
         // A 'Reason' of disapproving runner can be added
       })
-      .then(() => resolve({ result: 'OK' }))
-      .catch(reject);
+        .then(() => {
+          produceMessage(topics.ADMIN_DISAPPROVE_RUNNER, uid);
+        })
+        .then(() => resolve({ result: 'OK' }))
+        .catch(reject);
     }
     return reject('This mutation needs accessToken.');
   })
