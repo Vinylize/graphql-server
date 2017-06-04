@@ -21,11 +21,6 @@ import {
 } from '../util/sequelize/sequelize.database.util';
 
 import {
-  sendOrderAllPush,
-  sendOrderCatchPush
-} from '../util/selectivePush.util';
-
-import {
   topics,
   produceMessage
 } from '../util/kafka.util';

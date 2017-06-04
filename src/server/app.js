@@ -77,12 +77,15 @@ const startServer = (afterServerStartCallback) => {
       return {
         schema,
         rootValue: { request },
+        /* eslint-disable no-param-reassign */
         extensions(ext) {
           // TODO : Find why `logger.debug(ext.result)` doesn't work on this part.
           // logger.debug(ext.result);
           console.log(ext.result);
-          return { runTime: `${Date.now() - startTime}ms`, auth: { user: request.user, token: request.token } };
+          ext.result.data.auth = { user: request.user, token: request.token };
+          return { runTime: `${Date.now() - startTime}ms` };
         }
+        /* eslint-enable no-param-reassign */
       };
     }));
 
