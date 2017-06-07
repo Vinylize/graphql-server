@@ -63,8 +63,9 @@ const userUploadProfileImageMutation = {
           const imgUrl = `${s3BaseUrl}${s3BucketName}/${key}`;
           return refs.user.root.child(user.uid).child('pUrl').set(imgUrl)
             // mysql
-            .then(() => mRefs.user.root.updateData({ pUrl: imgUrl }, { row_id: user.uid }))
-            .then(() => resolve({ imgUrl }));
+            .then(() => mRefs.user.root.updateData({ pUrl: imgUrl }, { where: { row_id: user.uid } }))
+            .then(() => resolve({ imgUrl }))
+            .catch(reject);
         });
       }
       return reject('invalid or no file.');
@@ -99,27 +100,10 @@ const userUploadIdImageMutation = {
           const imgUrl = `${s3BaseUrl}${s3BucketName}/${key}`;
           return refs.user.root.child(user.uid).child('idUrl').set(imgUrl)
           // mysql
-            .then(() => mRefs.user.root.updateData({ idUrl: imgUrl }, { row_id: user.uid }))
-            .then(() => resolve({ imgUrl }));
+            .then(() => mRefs.user.root.updateData({ idUrl: imgUrl }, { where: { row_id: user.uid } }))
+            .then(() => resolve({ imgUrl }))
+            .catch(reject);
         });
-      }
-      return reject('invalid or no file.');
-    }
-    return reject('This mutation needs accessToken.');
-  })
-};
-
-const runnerUploadReciptImageMutation = {
-  name: 'runnerUploadReciptImage',
-  description: '',
-  inputFields: {},
-  outputFields: {
-    imageUrl: { type: GraphQLString, resolve: payload => payload.imgUrl }
-  },
-  mutateAndGetPayload: (args, { user, file }) => new Promise((resolve, reject) => {
-    if (user) {
-      if (file) {
-        console.log('upload file to s3 & firebase here.');
       }
       return reject('invalid or no file.');
     }
@@ -154,8 +138,9 @@ const uploadNodeImageMutation = {
           const imgUrl = `${s3BaseUrl}${s3BucketName}/${key}`;
           return refs.node.root.child(nodeId).child('imgUrl').set(imgUrl)
           // mysql
-            .then(() => mRefs.node.root.updateData({ imgUrl }, { row_id: user.uid }))
-            .then(() => resolve({ imgUrl }));
+            .then(() => mRefs.node.root.updateData({ imgUrl }, { where: { row_id: user.uid } }))
+            .then(() => resolve({ imgUrl }))
+            .catch(reject);
         });
       }
       return reject('There is no image.');
@@ -170,6 +155,24 @@ const uploadNodeItemImageMutation = {
   inputFields: {},
   outputFields: {
     imgUrl: { type: GraphQLString, resolve: payload => payload.imgUrl }
+  },
+  mutateAndGetPayload: (args, { user, file }) => new Promise((resolve, reject) => {
+    if (user) {
+      if (file) {
+        console.log('upload file to s3 & firebase here.');
+      }
+      return reject('invalid or no file.');
+    }
+    return reject('This mutation needs accessToken.');
+  })
+};
+
+const runnerUploadReciptImageMutation = {
+  name: 'runnerUploadReciptImage',
+  description: '',
+  inputFields: {},
+  outputFields: {
+    imageUrl: { type: GraphQLString, resolve: payload => payload.imgUrl }
   },
   mutateAndGetPayload: (args, { user, file }) => new Promise((resolve, reject) => {
     if (user) {

@@ -5,7 +5,7 @@ import envFile from 'node-env-file';
 const schema = {
   user: {
     root: {
-      row_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      row_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       e: { v: { type: Sequelize.STRING, unique: 'v' } },
       pw: { v: { type: Sequelize.STRING } },
       n: { v: { type: Sequelize.STRING } },
@@ -20,7 +20,7 @@ const schema = {
       d: { v: { type: Sequelize.STRING } },
       isWJ: { v: { type: Sequelize.BOOLEAN } },
       isRA: { v: { type: Sequelize.BOOLEAN } },
-      rAAt: { v: { type: Sequelize.INTEGER } },
+      rAAt: { v: { type: Sequelize.DATE } },
       isB: { v: { type: Sequelize.BOOLEAN } },
       permission: { v: { type: Sequelize.STRING } },
       isUA: { v: { type: Sequelize.BOOLEAN } },
@@ -34,19 +34,19 @@ const schema = {
       eAt: { v: { type: Sequelize.DATE } }
     },
     userPaymentInfo: {
-      sub_id: { v: { type: Sequelize.UUID, unique: 'v' } },
-      type: { v: { type: Sequelize.STRING } },
+      sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
+      type: { v: { type: Sequelize.INTEGER } },
       num: { v: { type: Sequelize.STRING } },
       provider: { v: { type: Sequelize.STRING } }
     },
     runnerPaymentInfo: {
-      sub_id: { v: { type: Sequelize.UUID, unique: 'v' } },
-      type: { v: { type: Sequelize.STRING } },
+      sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
+      type: { v: { type: Sequelize.INTEGER } },
       num: { v: { type: Sequelize.STRING } },
       provider: { v: { type: Sequelize.STRING } }
     },
     userAddress: {
-      sub_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       name: { v: { type: Sequelize.STRING } },
       mAddr: { v: { type: Sequelize.STRING } },
       sAddr: { v: { type: Sequelize.STRING } },
@@ -54,7 +54,7 @@ const schema = {
       lon: { v: { type: Sequelize.FLOAT } }
     },
     help: {
-      sub_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       comm: { v: { type: Sequelize.STRING } },
       cAt: { v: { type: Sequelize.DATE } },
       aAt: { v: { type: Sequelize.DATE } },
@@ -64,7 +64,7 @@ const schema = {
   },
   order: {
     root: {
-      row_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      row_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       oId: { v: { type: Sequelize.STRING } },
       rId: { v: { type: Sequelize.STRING } },
       nId: { v: { type: Sequelize.STRING } },
@@ -94,14 +94,14 @@ const schema = {
       uComm: { v: { type: Sequelize.STRING } }
     },
     regItems: {
-      sub_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       iId: { v: { type: Sequelize.STRING } },
       n: { v: { type: Sequelize.STRING } },
       p: { v: { type: Sequelize.INTEGER } },
       cnt: { v: { type: Sequelize.INTEGER } }
     },
     customItems: {
-      sub_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       iId: { v: { type: Sequelize.STRING } },
       n: { v: { type: Sequelize.STRING } },
       manu: { v: { type: Sequelize.STRING } },
@@ -110,7 +110,7 @@ const schema = {
   },
   node: {
     root: {
-      row_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      row_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       n: { v: { type: Sequelize.STRING } },
       p: { v: { type: Sequelize.STRING } },
       addr: { v: { type: Sequelize.STRING } },
@@ -125,7 +125,7 @@ const schema = {
       lon: { v: { type: Sequelize.FLOAT } }
     },
     nodeItems: {
-      sub_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       name: { v: { type: Sequelize.STRING } },
       imgUrl: { v: { type: Sequelize.STRING } },
       price: { v: { type: Sequelize.INTEGER } },
@@ -134,7 +134,7 @@ const schema = {
   },
   partner: {
     root: {
-      row_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      row_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       pw: { v: { type: Sequelize.STRING } },
       name: { v: { type: Sequelize.STRING } },
       p: { v: { type: Sequelize.STRING } },
@@ -145,7 +145,7 @@ const schema = {
       FAAt: { v: { type: Sequelize.DATE } }
     },
     partnerPaymentInfo: {
-      sub_id: { v: { type: Sequelize.UUID, unique: 'v' } },
+      sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
       type: { v: { type: Sequelize.INTEGER } },
       num: { v: { type: Sequelize.STRING } },
       provider: { v: { type: Sequelize.STRING } }
@@ -165,10 +165,10 @@ Object.keys(schema).map((key1) => {
         primaryKey: true
       };
       if (key2 === 'root') {
-        if (key3 !== 'row_id') schema[key1][key2][key3].row_id = { type: Sequelize.UUID, unique: 'row_id' };
+        if (key3 !== 'row_id') schema[key1][key2][key3].row_id = { type: Sequelize.UUID, unique: 'row_id', allowNull: false };
       } else {
-        schema[key1][key2][key3].row_id = { type: Sequelize.UUID };
-        if (key3 !== 'sub_id') schema[key1][key2][key3].sub_id = { type: Sequelize.UUID, unique: 'sud_id' };
+        schema[key1][key2][key3].row_id = { type: Sequelize.UUID, allowNull: false };
+        if (key3 !== 'sub_id') schema[key1][key2][key3].sub_id = { type: Sequelize.UUID, unique: 'sud_id', allowNull: false };
       }
     });
   });
@@ -262,15 +262,14 @@ const mDefaultSchema = {
 };
 
 class Reference {
-  constructor(key, object) {
-    this[key] = object;
-  }
-
   setColumn(key, object) {
     this[key] = object;
   }
 
   findDataById(properties, id, idProp) {
+    /* eslint-disable no-param-reassign */
+    if (properties.lengfth === 0) properties = Object.getOwnPropertyNames(this);
+    /* eslint-enable no-param-reassign */
     return new Promise((resolve, reject) => {
       let where = {};
       const idRoot = this.row_id ? 'row_id' : 'sub_id';
@@ -286,7 +285,7 @@ class Reference {
         else if (idType === 'sub_id') where = { v: id };
       }
       return this[idRoot].findAll({
-        rejectOnEmpty: true,
+        // rejectOnEmpty: true,
         attributes,
         where,
         include:
@@ -331,6 +330,9 @@ class Reference {
   }
 
   findData(properties, condition) {
+    /* eslint-disable no-param-reassign */
+    if (properties.lengfth === 0) properties = Object.getOwnPropertyNames(this);
+    /* eslint-enable no-param-reassign */
     return new Promise((resolve, reject) => {
       const idRoot = this.row_id ? 'row_id' : 'sub_id';
       let attributes = [];
@@ -345,7 +347,7 @@ class Reference {
           .catch(reject);
       }
       return this[idRoot].findAll({
-        rejectOnEmpty: true,
+        // rejectOnEmpty: true,
         attributes,
         include:
           Object.keys(condition.where).map((prop) => {

@@ -6,8 +6,6 @@
   "scripts": {
     "test": "gulp test",
     "start": "gulp dev",
-    "server" : "NODE",
-    "deploy" : "",
     "lint": "eslint --ignore-path .gitignore src",
     "migration": "gulp build:migration && node ./migration/sequelize.migration.js up",
     "seed": "gulp build:migration && node ./migration/sequelize.seeder up"
