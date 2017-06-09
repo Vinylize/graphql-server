@@ -6,9 +6,6 @@ import {
 } from 'graphql';
 
 import CoordinateType from './coordinate.type';
-import {
-  refs
-} from '../util/firebase/firebase.database.util';
 
 const NodeType = new GraphQLObjectType({
   name: 'node',
@@ -28,11 +25,16 @@ const NodeType = new GraphQLObjectType({
     formattedDistance: { type: GraphQLString },
     coordinate: {
       type: CoordinateType,
-      resolve: source => new Promise((resolve, reject) => {
-        refs.node.coordinate.child(source.id).once('value')
-          .then(snap => resolve({ lat: snap.val().l[0], lon: snap.val().l[1] }))
-          .catch(reject);
-      }) }
+      resolve: source => new Promise((resolve) => {
+        if (source.coordinate) {
+          return resolve({
+            lat: source.coordinate.coordinates[1],
+            lon: source.coordinate.coordinates[0]
+          });
+        }
+        return resolve();
+      })
+    },
   })
 });
 

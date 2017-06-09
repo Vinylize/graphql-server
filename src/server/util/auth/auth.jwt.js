@@ -22,32 +22,33 @@ const decodeToken = (token, ignoreExpiration = false) => new Promise((resolve, r
   });
 });
 
-const getAuth = (e, pw, admin = false) => new Promise((resolve, reject) => {
+const getAuth = (e, pw, admin = false) => new Promise((resolve, reject) =>
   mRefs.user.root.findData(['e', 'pw', 'n', 'permission'], { where: { e } })
-  .then((users) => {
-    if (!bcrypt.compareSync(pw, users[0].pw)) return reject('Password or email is wrong!');
-    if (admin && users[0].permission !== 'admin') return reject('You are not an admin.');
-    const user = {
-      uid: users[0].row_id,
-      e: users[0].e,
-      n: users[0].n,
-      permission: users[0].permission
-    };
-    return setToken(user)
-    .then(result => resolve(result))
-    .catch(reject);
-  })
-  .catch(() => reject('Paassword or email is wrong!'));
-});
+    .then((users) => {
+      if (!bcrypt.compareSync(pw, users[0].pw)) return reject('Password or email is wrong!');
+      if (admin && users[0].permission !== 'admin') return reject('You are not an admin.');
+      const user = {
+        uid: users[0].row_id,
+        e: users[0].e,
+        n: users[0].n,
+        permission: users[0].permission
+      };
+      return setToken(user)
+      .then(result => resolve(result))
+      .catch(reject);
+    })
+    .catch(() => reject('Paassword or email is wrong!')));
 
-const refreshToken = (token, ignoreExpiration = false) =>
+const refreshToken = (token, ignoreExpiration = false) => new Promise((resolve, reject) =>
   decodeToken(token, ignoreExpiration)
-  .then(decoded => setToken({
-    uid: decoded.user.uid,
-    e: decoded.user.e,
-    n: decoded.user.n,
-    permission: decoded.user.permission
-  }));
+    .then(decoded => setToken({
+      uid: decoded.user.uid,
+      e: decoded.user.e,
+      n: decoded.user.n,
+      permission: decoded.user.permission
+    })
+    .then(authUser => resolve(authUser)))
+    .catch(reject));
 
 export {
   setToken,

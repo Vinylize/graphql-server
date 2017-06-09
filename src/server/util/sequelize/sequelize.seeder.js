@@ -16,8 +16,7 @@ const up = () => {
   const nodes = data.node;
   const coordinates = data.nodeProperties.coordinate;
   Object.keys(coordinates).map((key) => {
-    nodes[key].lat = coordinates[key].l[0];
-    nodes[key].lon = coordinates[key].l[1];
+    nodes[key].coordinate = { type: 'Point', coordinates: [coordinates[key].l[1], coordinates[key].l[0]] };
     mRefs.node.root.createData({ ...nodes[key] }, key);
     return null;
   });

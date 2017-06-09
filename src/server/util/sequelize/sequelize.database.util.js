@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid';
 import envFile from 'node-env-file';
 
+/* eslint-disable array-callback-return */
 const schema = {
   user: {
     root: {
@@ -27,8 +28,7 @@ const schema = {
       uAAt: { v: { type: Sequelize.DATE } },
       isSA: { v: { type: Sequelize.BOOLEAN } },
       sAAt: { v: { type: Sequelize.DATE } },
-      lat: { v: { type: Sequelize.FLOAT } },
-      lon: { v: { type: Sequelize.FLOAT } },
+      coordinate: { v: { type: Sequelize.GEOMETRY('POINT'), allowNull: false } },
       code: { v: { type: Sequelize.INTEGER } },
       vAt: { v: { type: Sequelize.DATE } },
       eAt: { v: { type: Sequelize.DATE } }
@@ -50,8 +50,7 @@ const schema = {
       name: { v: { type: Sequelize.STRING } },
       mAddr: { v: { type: Sequelize.STRING } },
       sAddr: { v: { type: Sequelize.STRING } },
-      lat: { v: { type: Sequelize.FLOAT } },
-      lon: { v: { type: Sequelize.FLOAT } }
+      coordinate: { v: { type: Sequelize.GEOMETRY('POINT'), allowNull: false } },
     },
     help: {
       sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
@@ -72,8 +71,8 @@ const schema = {
       dC: { v: { type: Sequelize.INTEGER } },
       rC: { v: { type: Sequelize.INTEGER } },
       rImg: { v: { type: Sequelize.STRING } },
-      eDp: { v: { type: Sequelize.INTEGER } },
-      rDp: { v: { type: Sequelize.INTEGER } },
+      eDP: { v: { type: Sequelize.INTEGER } },
+      rDP: { v: { type: Sequelize.INTEGER } },
       isIC: { v: { type: Sequelize.BOOLEAN } },
       tP: { v: { type: Sequelize.INTEGER } },
       curr: { v: { type: Sequelize.STRING } },
@@ -84,8 +83,7 @@ const schema = {
       endAt: { v: { type: Sequelize.DATE } },
       n1: { v: { type: Sequelize.STRING } },
       n2: { v: { type: Sequelize.STRING } },
-      lat: { v: { type: Sequelize.FLOAT } },
-      lon: { v: { type: Sequelize.FLOAT } },
+      coordinate: { v: { type: Sequelize.GEOMETRY('POINT'), allowNull: false } },
       calculateDetail: { v: { type: Sequelize.STRING } },
       paymentDetail: { v: { type: Sequelize.STRING } },
       rM: { v: { type: Sequelize.INTEGER } },
@@ -121,8 +119,7 @@ const schema = {
       imgUrl: { v: { type: Sequelize.STRING } },
       cAt: { v: { type: Sequelize.DATE } },
       like: { v: { type: Sequelize.INTEGER } },
-      lat: { v: { type: Sequelize.FLOAT } },
-      lon: { v: { type: Sequelize.FLOAT } }
+      coordinate: { v: { type: Sequelize.GEOMETRY('POINT'), allowNull: false } },
     },
     nodeItems: {
       sub_id: { v: { type: Sequelize.UUID, unique: 'v', allowNull: false } },
@@ -153,8 +150,6 @@ const schema = {
   }
 };
 
-/* eslint-disable array-callback-return */
-
 // Add id columns for binding tables
 Object.keys(schema).map((key1) => {
   Object.keys(schema[key1]).map((key2) => {
@@ -184,8 +179,6 @@ const db = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USER, pro
     timestamps: false
   },
 });
-
-/* eslint-enable array-callback-return */
 
 const mRefs = {
   user: {
@@ -268,7 +261,11 @@ class Reference {
 
   findDataById(properties, id, idProp) {
     /* eslint-disable no-param-reassign */
-    if (properties.lengfth === 0) properties = Object.getOwnPropertyNames(this);
+    if (properties && properties.length === 0) {
+      properties = Object.getOwnPropertyNames(this);
+      properties = properties.filter(v => v !== 'row_id' && v !== 'sub_id');
+    }
+    if (!properties) properties = [];
     /* eslint-enable no-param-reassign */
     return new Promise((resolve, reject) => {
       let where = {};
@@ -331,8 +328,10 @@ class Reference {
 
   findData(properties, condition) {
     /* eslint-disable no-param-reassign */
-    if (properties.lengfth === 0) properties = Object.getOwnPropertyNames(this);
-    /* eslint-enable no-param-reassign */
+    if (properties && properties.length === 0) {
+      properties = Object.getOwnPropertyNames(this);
+      properties = properties.filter(v => v !== 'row_id' && v !== 'sub_id');
+    }
     return new Promise((resolve, reject) => {
       const idRoot = this.row_id ? 'row_id' : 'sub_id';
       let attributes = [];
@@ -346,6 +345,8 @@ class Reference {
           .then(result => resolve(result))
           .catch(reject);
       }
+      if (!properties) properties = [];
+      /* eslint-enable no-param-reassign */
       return this[idRoot].findAll({
         // rejectOnEmpty: true,
         attributes,
@@ -399,7 +400,7 @@ class Reference {
   }
 
   updateData(properties, condition) {
-    return new Promise((resolve, reject) => this.findData([], condition)
+    return new Promise((resolve, reject) => this.findData(null, condition)
       .then(ids => db.transaction(t => Promise.all(
         ids.map(id => Promise.all(
           Object.keys(properties).map((key) => {
@@ -423,26 +424,56 @@ class Reference {
   }
 }
 
-
-/* eslint-disable array-callback-return */
+class ReferenceGeo extends Reference {
+  findDataInsideRadius(properties, condition, center, radius) {
+    return new Promise((resolve, reject) => {
+      const table = this.coordinate.tableName;
+      const rawQuery = `SELECT *, (ST_Distance_Sphere(Point(${center.lon},${center.lat}),v)) AS distance FROM ${table} HAVING distance < ${radius}`;
+      return db.query(rawQuery, { type: Sequelize.QueryTypes.SELECT })
+        .then(results => Promise.all(
+          results.map((v) => {
+            if (this.row_id) return this.findDataById(properties, v.row_id).then(datas => ({ ...datas[0], distance: v.distance }));
+            return this.findDataById(properties, v.sub_id).then(datas => ({ ...datas[0], distance: v.distance }));
+          })).then((results1) => {
+            if (!condition) return resolve(results1);
+            return this.findData(properties, condition)
+            .then((results2) => {
+              if (this.row_id) return results2.filter(v1 => results1.filter(v2 => v1.row_id === v2.row_id).length).map(v1 => ({ distance: results1.map(v2 => (v1.row_id === v2.row_id ? v2 : null))[0].distance, ...v1 }));
+              return results2.filter(v1 => results1.filter(v2 => v1.sub_id === v2.sub_id).length).map(v1 => ({ distance: results1.map(v2 => (v1.sub_id === v2.sub_id ? v2 : null))[0].distance, ...v1 }));
+            });
+          }))
+        .then(results => resolve(results))
+        .catch(reject);
+    });
+  }
+}
 
 // Making associations among tables
 Object.keys(schema).map((key1) => {
   Object.keys(schema[key1]).map((key2) => {
     mRefs[key1][key2] = new Reference();
+    if (schema[key1][key2].coordinate) mRefs[key1][key2] = new ReferenceGeo();
     Object.keys(schema[key1][key2]).map((key3) => {
-      mRefs[key1][key2].setColumn(key3, db.define(`${key1}_${key2}_${key3}`, schema[key1][key2][key3], {
+      const tableOption = {
         timestamps: false,
         tableName: `${key1}_${key2}_${key3}`,
-        freezeTableName: true
-      }));
+        freezeTableName: true,
+      };
+      if (key3 === 'coordinate') {
+        tableOption.indexes = [{
+          name: 'SPATIAL_INDEX',
+          type: 'SPATIAL',
+          fields: ['v'],
+        }];
+      }
+      mRefs[key1][key2].setColumn(key3, db.define(`${key1}_${key2}_${key3}`, schema[key1][key2][key3], tableOption));
     });
   });
 });
-Object.keys(schema).map((key1) => {
-  Object.keys(schema[key1]).map((key2) => {
-    Object.keys(schema[key1][key2]).map((key3) => {
-      if (schema[key1][key2].row_id) {
+Object.keys(mRefs).map((key1) => {
+  Object.keys(mRefs[key1]).map((key2) => {
+    Object.keys(mRefs[key1][key2]).map((key3) => {
+      if (mRefs[key1][key2].row_id) {
         if (key3 !== 'row_id') {
           mRefs[key1][key2][key3].belongsTo(mRefs[key1][key2].row_id, { foreignKey: 'row_id', targetKey: 'v' });
           mRefs[key1][key2].row_id.hasMany(mRefs[key1][key2][key3], { foreignKey: 'row_id', sourceKey: 'v', constraints: false, as: key3 });
@@ -459,6 +490,12 @@ Object.keys(schema).map((key1) => {
   });
 });
 
+mRefs.user.root.cAt.belongsTo(mRefs.user.root.row_id, { foreignKey: 'row_id', targetKey: 'v' });
+mRefs.user.root.row_id.hasMany(mRefs.user.root.cAt, { foreignKey: 'row_id', sourceKey: 'v', constraints: false, as: 'cAt' });
+mRefs.user.root.coordinate.belongsTo(mRefs.user.root.row_id, { foreignKey: 'row_id', targetKey: 'v' });
+mRefs.user.root.row_id.hasMany(mRefs.user.root.coordinate, { foreignKey: 'row_id', sourceKey: 'v', constraints: false, as: 'coordinate' });
+mRefs.node.root.imgUrl.belongsTo(mRefs.node.root.row_id, { foreignKey: 'row_id', targetKey: 'v' });
+mRefs.node.root.row_id.hasMany(mRefs.node.root.imgUrl, { foreignKey: 'row_id', sourceKey: 'v', constraints: false, as: 'imgUrl' });
 /* eslint-enable array-callback-return */
 
 export {

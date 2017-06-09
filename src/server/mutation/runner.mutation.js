@@ -90,6 +90,7 @@ const runnerUpdateCoordinateMutation = {
   mutateAndGetPayload: ({ lat, lon }, { user }) => new Promise((resolve, reject) => {
     if (user) {
       return userGeoFire.set(user.uid, [lat, lon])
+        .then(() => mRefs.user.root.updateData({ coordinate: { type: 'Point', coordinates: [lon, lat] } }, { where: { row_id: user.uid } }))
         .then(() => {
           resolve({ result: 'OK' });
         }, (error) => {
