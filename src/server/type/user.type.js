@@ -111,51 +111,31 @@ const UserType = new GraphQLObjectType({
     },
     userPaymentInfo: {
       type: new GraphQLList(UserPaymentInfoType),
-      resolve: source => new Promise((resolve, reject) => {
-        // refs.user.userPaymentInfo.child(source.row_id).once('value')
-        //     .then(snap => resolve(snap.val()))
-        //     .catch(reject);
+      resolve: source => new Promise((resolve, reject) =>
         mRefs.user.userPaymentInfo.findDataById([], source.row_id, 'row_id')
           .then(results => resolve(results))
-          .catch(reject);
-      })
+          .catch(reject))
     },
     runnerPaymentInfo: {
       type: new GraphQLList(RunnerPaymentInfoType),
-      resolve: source => new Promise((resolve, reject) => {
-        // refs.user.runnerPaymentInfo.child(source.row_id).once('value')
-        //     .then(snap => resolve(snap.val()))
-        //     .catch(reject);
+      resolve: source => new Promise((resolve, reject) =>
         mRefs.user.runnerPaymentInfo.findDataById([], source.row_id, 'row_id')
           .then(results => resolve(results))
-          .catch(reject);
-      })
+          .catch(reject))
     },
     userAddress: {
       type: new GraphQLList(userAddressType),
-      resolve: source => new Promise((resolve, reject) => {
-        // refs.user.address.child(source.row_id).once('value')
-        //     .then(snap => resolve(snap.val()))
-        //     .catch(reject);
+      resolve: source => new Promise((resolve, reject) =>
         mRefs.user.userAddress.findDataById([], source.row_id, 'row_id')
           .then(results => resolve(results))
-          .catch(reject);
-      })
+          .catch(reject))
     },
     order: {
       type: OrderType,
       args: {
         id: { type: new GraphQLNonNull(GraphQLString) },
       },
-      resolve: (source, { id }) => new Promise((resolve, reject) => {
-        // refs.order.root.child(id).once('value')
-        //   .then((snap) => {
-        //     if (snap.val()) {
-        //       return resolve(snap.val());
-        //     }
-        //     return reject(`there is no order id ${id}`);
-        //   })
-        //   .catch(reject);
+      resolve: (source, { id }) => new Promise((resolve, reject) =>
         mRefs.order.root.findDataById([], id)
           .then((results) => {
             if (results.length > 0) {
@@ -163,45 +143,28 @@ const UserType = new GraphQLObjectType({
             }
             return reject(`there is no order id ${id}`);
           })
-          .catch(reject);
-      })
+          .catch(reject))
     },
     orderHistory: {
       type: new GraphQLList(OrderType),
-      resolve: source => new Promise((resolve, reject) => {
-        // refs.order.root.orderByChild('oId').equalTo(source.row_id).once('value')
-        //   .then(snap => resolve(
-        //     Object.keys(snap.val())
-        //     .map(key => snap.val()[key])
-        //     .sort((a, b) => b.cAt - a.cAt))
-        //   )
-        //   .catch(reject);
+      resolve: source => new Promise((resolve, reject) =>
         mRefs.order.root.findData([], { where: { oId: source.row_id } })
           .then(results => resolve(results.sort((a, b) => b.cAt - a.cAt)))
-          .catch(reject);
-      })
+          .catch(reject))
     },
     runnerHistory: {
       type: new GraphQLList(OrderType),
-      resolve: source => new Promise((resolve, reject) => {
-        // refs.order.root.orderByChild('rId').equalTo(source.row_id).once('value')
-        //   .then(snap => resolve(snap.val()))
-        //   .catch(reject);
+      resolve: source => new Promise((resolve, reject) =>
         mRefs.order.root.findData([], { where: { rId: source.row_id } })
           .then(results => resolve(results))
-          .catch(reject);
-      })
+          .catch(reject))
     },
     help: {
       type: new GraphQLList(HelpType),
-      resolve: source => new Promise((resolve, reject) => {
-        // refs.user.help.child(source.row_id).once('value')
-        //     .then(snap => resolve(snap.val()))
-        //     .catch(reject);
+      resolve: source => new Promise((resolve, reject) =>
         mRefs.user.help.findDataById([], source.row_id, 'row_id')
           .then(results => resolve(results))
-          .catch(reject);
-      })
+          .catch(reject))
     },
     nearbyRunner: {
       type: new GraphQLList(CoordinateType),
@@ -210,27 +173,12 @@ const UserType = new GraphQLObjectType({
         centerLon: { type: new GraphQLNonNull(GraphQLFloat) },
         radius: { type: new GraphQLNonNull(GraphQLInt) },
       },
-      resolve: (source, { centerLat, centerLon, radius }) => new Promise((resolve) => {
+      resolve: (source, { centerLat, centerLon, radius }) => new Promise(resolve =>
         mRefs.user.root.findDataInsideRadius(['coordinate'], { where: { isRA: true } }, { lat: centerLat, lon: centerLon }, radius)
           .then((results) => {
             if (results) return resolve(results.map(v => ({ lat: v.coordinate.coordinates[1], lon: v.coordinate.coordinates[0] })));
             return resolve();
-          });
-        // const geoQuery = userGeoFire.query({
-        //   center: [centerLat, centerLon],
-        //   radius: GeoFire.distance([centerLat, centerLon], [edgeLat, edgeLon])
-        // });
-
-        // const p = [];
-        // geoQuery.on('key_entered', (_, location) => {
-        //   p.push({ lat: location[0], lon: location[1] });
-        // });
-
-        // geoQuery.on('ready', () => {
-        //   geoQuery.cancel();
-        //   resolve(p);
-        // });
-      })
+          }))
     },
     orderStatusCategory: {
       type: GraphQLString,
@@ -249,22 +197,14 @@ const UserType = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(GraphQLString) },
       },
-      resolve: (_, { id }) => new Promise((resolve, reject) => {
-        // refs.node.root.child(id).once('value')
-        //   .then((snap) => {
-        //     if (snap.val()) {
-        //       return resolve(snap.val());
-        //     }
-        //     return reject(`There is no Node id ${id}`);
-        //   });
+      resolve: (_, { id }) => new Promise((resolve, reject) =>
         mRefs.node.root.findDataById([], id)
           .then((results) => {
             if (results.length > 0) {
               return resolve(results[0]);
             }
             return reject(`There is no Node id ${id}`);
-          });
-      })
+          }))
 
     },
     nodeList: {
@@ -276,7 +216,7 @@ const UserType = new GraphQLObjectType({
         c1: { type: new GraphQLNonNull(GraphQLString) },
         c2: { type: GraphQLString }
       },
-      resolve: (source, { lat, lon, radius, c1, c2 }) => new Promise((resolve) => {
+      resolve: (source, { lat, lon, radius, c1, c2 }) => new Promise(resolve =>
         mRefs.node.root.findDataInsideRadius([], null, { lat, lon }, radius)
           .then((results) => {
             const results2 = results.map(v => ({ ...v, formattedDistance: `${(v.distance / 1000).toFixed(2)}km` }));
@@ -288,7 +228,7 @@ const UserType = new GraphQLObjectType({
               return resolve(c1Result);
             }
             return resolve(c1Result.filter(node => node.c2 === c2).sort((a, b) => a.distance - b.distance));
-          });
+          }))
         // const geoQuery = nodeGeoFire.query({
         //   center: [lat, lon],
         //   radius
@@ -318,7 +258,6 @@ const UserType = new GraphQLObjectType({
         //   });
         //   geoQuery.cancel();
         // });
-      })
     },
     braintreeToken: {
       type: GraphQLString,

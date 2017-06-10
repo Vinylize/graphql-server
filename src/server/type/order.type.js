@@ -89,9 +89,6 @@ const OrderType = new GraphQLObjectType({
         if (!source.rId) {
           return resolve();
         }
-        // return refs.user.root.child(source.rId).once('value')
-        //   .then(snap => resolve(snap.val()))
-        //   .catch(reject);
         return mRefs.user.root.findDataById([], source.rId)
           .then(results => resolve(results[0]))
           .catch(reject);
