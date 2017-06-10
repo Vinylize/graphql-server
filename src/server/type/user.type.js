@@ -72,7 +72,10 @@ const UserType = new GraphQLObjectType({
   name: 'user',
   description: 'UserType of Vinyl.',
   fields: () => ({
-    id: { type: GraphQLString },
+    id: {
+      type: GraphQLString,
+      resolve: source => source.row_id
+    },
     e: { type: GraphQLString },
     n: { type: GraphQLString },
     mode: { type: GraphQLInt },
@@ -109,10 +112,10 @@ const UserType = new GraphQLObjectType({
     userPaymentInfo: {
       type: new GraphQLList(UserPaymentInfoType),
       resolve: source => new Promise((resolve, reject) => {
-        // refs.user.userPaymentInfo.child(source.id).once('value')
+        // refs.user.userPaymentInfo.child(source.row_id).once('value')
         //     .then(snap => resolve(snap.val()))
         //     .catch(reject);
-        mRefs.user.userPaymentInfo.findDataById([], source.id, 'row_id')
+        mRefs.user.userPaymentInfo.findDataById([], source.row_id, 'row_id')
           .then(results => resolve(results))
           .catch(reject);
       })
@@ -120,10 +123,10 @@ const UserType = new GraphQLObjectType({
     runnerPaymentInfo: {
       type: new GraphQLList(RunnerPaymentInfoType),
       resolve: source => new Promise((resolve, reject) => {
-        // refs.user.runnerPaymentInfo.child(source.id).once('value')
+        // refs.user.runnerPaymentInfo.child(source.row_id).once('value')
         //     .then(snap => resolve(snap.val()))
         //     .catch(reject);
-        mRefs.user.runnerPaymentInfo.findDataById([], source.id, 'row_id')
+        mRefs.user.runnerPaymentInfo.findDataById([], source.row_id, 'row_id')
           .then(results => resolve(results))
           .catch(reject);
       })
@@ -131,10 +134,10 @@ const UserType = new GraphQLObjectType({
     userAddress: {
       type: new GraphQLList(userAddressType),
       resolve: source => new Promise((resolve, reject) => {
-        // refs.user.address.child(source.id).once('value')
+        // refs.user.address.child(source.row_id).once('value')
         //     .then(snap => resolve(snap.val()))
         //     .catch(reject);
-        mRefs.user.userAddress.findDataById([], source.id, 'row_id')
+        mRefs.user.userAddress.findDataById([], source.row_id, 'row_id')
           .then(results => resolve(results))
           .catch(reject);
       })
@@ -166,14 +169,14 @@ const UserType = new GraphQLObjectType({
     orderHistory: {
       type: new GraphQLList(OrderType),
       resolve: source => new Promise((resolve, reject) => {
-        // refs.order.root.orderByChild('oId').equalTo(source.id).once('value')
+        // refs.order.root.orderByChild('oId').equalTo(source.row_id).once('value')
         //   .then(snap => resolve(
         //     Object.keys(snap.val())
         //     .map(key => snap.val()[key])
         //     .sort((a, b) => b.cAt - a.cAt))
         //   )
         //   .catch(reject);
-        mRefs.order.root.findData([], { where: { oId: source.id } })
+        mRefs.order.root.findData([], { where: { oId: source.row_id } })
           .then(results => resolve(results.sort((a, b) => b.cAt - a.cAt)))
           .catch(reject);
       })
@@ -181,10 +184,10 @@ const UserType = new GraphQLObjectType({
     runnerHistory: {
       type: new GraphQLList(OrderType),
       resolve: source => new Promise((resolve, reject) => {
-        // refs.order.root.orderByChild('rId').equalTo(source.id).once('value')
+        // refs.order.root.orderByChild('rId').equalTo(source.row_id).once('value')
         //   .then(snap => resolve(snap.val()))
         //   .catch(reject);
-        mRefs.order.root.findData([], { where: { rId: source.id } })
+        mRefs.order.root.findData([], { where: { rId: source.row_id } })
           .then(results => resolve(results))
           .catch(reject);
       })
@@ -192,10 +195,10 @@ const UserType = new GraphQLObjectType({
     help: {
       type: new GraphQLList(HelpType),
       resolve: source => new Promise((resolve, reject) => {
-        // refs.user.help.child(source.id).once('value')
+        // refs.user.help.child(source.row_id).once('value')
         //     .then(snap => resolve(snap.val()))
         //     .catch(reject);
-        mRefs.user.help.findDataById([], source.id, 'row_id')
+        mRefs.user.help.findDataById([], source.row_id, 'row_id')
           .then(results => resolve(results))
           .catch(reject);
       })

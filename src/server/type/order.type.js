@@ -7,8 +7,10 @@ import {
 } from 'graphql';
 
 import {
-  refs
-} from '../util/firebase/firebase.database.util';
+  mRefs
+} from '../util/sequelize/sequelize.database.util';
+
+import CoordinateType from '../type/coordinate.type';
 
 import UserType from './user.type';
 import NodeType from './node.type';
@@ -43,69 +45,43 @@ const ItemType = new GraphQLObjectType({
   })
 });
 
-const DestType = new GraphQLObjectType({
-  name: 'dest',
-  description: 'Destination of order.',
-  fields: () => ({
-    n1: { type: GraphQLString },
-    n2: { type: GraphQLString },
-    lat: { type: GraphQLFloat },
-    lon: { type: GraphQLFloat },
-  })
-});
+// const PaymentDetailType = new GraphQLObjectType({
+//   name: 'paymentDetail',
+//   fields: () => ({
+//     m: { type: GraphQLInt },
+//     comm: { type: GraphQLString }
+//   })
+// });
 
-const PaymentDetailType = new GraphQLObjectType({
-  name: 'paymentDetail',
-  fields: () => ({
-    m: { type: GraphQLInt },
-    comm: { type: GraphQLString }
-  })
-});
-
-const CalculateDetailType = new GraphQLObjectType({
-  name: 'calculateDetail',
-  fields: () => ({
-    m: { type: GraphQLInt },
-    comm: { type: GraphQLString }
-  })
-});
-
-const EvalFromRunnerType = new GraphQLObjectType({
-  name: 'evalFromRunner',
-  fields: () => ({
-    m: { type: GraphQLInt },
-    comm: { type: GraphQLString }
-  })
-});
-
-const EvalFromUserType = new GraphQLObjectType({
-  name: 'evalFromUser',
-  fields: () => ({
-    m: { type: GraphQLInt },
-    comm: { type: GraphQLString }
-  })
-});
+// const CalculateDetailType = new GraphQLObjectType({
+//   name: 'calculateDetail',
+//   fields: () => ({
+//     m: { type: GraphQLInt },
+//     comm: { type: GraphQLString }
+//   })
+// });
 
 const OrderType = new GraphQLObjectType({
   name: 'Connection',
   description: 'OrderType of User.',
   fields: () => ({
-    id: { type: GraphQLString },
+    id: {
+      type: GraphQLString,
+      resolve: source => source.row_id
+    },
     nId: {
       type: NodeType,
-      resolve: source => new Promise((resolve, reject) => {
-        refs.node.root.child(source.nId).once('value')
-          .then(snap => resolve(snap.val()))
-          .catch(reject);
-      })
+      resolve: source => new Promise((resolve, reject) =>
+        mRefs.node.root.findDataById([], source.nId)
+          .then(results => resolve(results[0]))
+          .catch(reject))
     },
     oId: {
       type: UserType,
-      resolve: source => new Promise((resolve, reject) => {
-        refs.user.root.child(source.oId).once('value')
-          .then(snap => resolve(snap.val()))
-          .catch(reject);
-      })
+      resolve: source => new Promise((resolve, reject) =>
+        mRefs.user.root.findDataById([], source.oId)
+          .then(results => resolve(results[0]))
+          .catch(reject))
     },
     rId: {
       type: UserType,
@@ -113,8 +89,11 @@ const OrderType = new GraphQLObjectType({
         if (!source.rId) {
           return resolve();
         }
-        return refs.user.root.child(source.rId).once('value')
-          .then(snap => resolve(snap.val()))
+        // return refs.user.root.child(source.rId).once('value')
+        //   .then(snap => resolve(snap.val()))
+        //   .catch(reject);
+        return mRefs.user.root.findDataById([], source.rId)
+          .then(results => resolve(results[0]))
           .catch(reject);
       })
     },
@@ -123,28 +102,21 @@ const OrderType = new GraphQLObjectType({
       resolve: source => new Promise((resolve, reject) => {
         let regItem = [];
         let customItem = [];
-        return refs.order.regItem.child(source.id).once('value')
-          .then((snap) => {
-            if (snap.val() !== null) {
-              regItem = Object.keys(snap.val()).map(key => snap.val()[key]);
+        return mRefs.order.regItems.findDataById([], source.row_id)
+          .then((results) => {
+            if (results.length > 0) {
+              regItem = Object.keys(results[0]).map(key => results[0][key]);
             }
-            return refs.order.customItem.child(source.id).once('value');
+            return mRefs.order.customItems.findDataById([], source.row_id);
           })
-          .then((snap) => {
-            if (snap.val() !== null) {
-              customItem = Object.keys(snap.val()).map(key => snap.val()[key]);
+          .then((results) => {
+            if (results.length > 0) {
+              customItem = Object.keys(results[0]).map(key => results[0][key]);
             }
             return resolve({ regItem, customItem });
           })
           .catch(reject);
       })
-    },
-    dest: {
-      type: DestType,
-      resolve: source => new Promise((resolve, reject) =>
-        refs.order.dest.child(source.id).once('value')
-          .then(snap => resolve(snap.val()))
-          .catch(reject))
     },
     status: {
       type: GraphQLInt,
@@ -185,38 +157,29 @@ const OrderType = new GraphQLObjectType({
     rDP: { type: GraphQLInt },
     tP: { type: GraphQLInt },
     cAt: { type: GraphQLFloat },
-    paymentDetail: {
-      type: PaymentDetailType,
-      resolve: source => new Promise((resolve, reject) => {
-        refs.user.paymentDetail.child(source.id).once('value')
-            .then(snap => resolve(snap.val()))
-            .catch(reject);
-      })
-    },
-    calculateDetail: {
-      type: CalculateDetailType,
-      resolve: source => new Promise((resolve, reject) => {
-        refs.user.calculateDetail.child(source.id).once('value')
-            .then(snap => resolve(snap.val()))
-            .catch(reject);
-      })
-    },
-    evalFromRunner: {
-      type: EvalFromRunnerType,
-      resolve: source => new Promise((resolve, reject) => {
-        refs.user.evalFromRunner.child(source.id).once('value')
-            .then(snap => resolve(snap.val()))
-            .catch(reject);
-      })
-    },
-    evalFromUser: {
-      type: EvalFromUserType,
-      resolve: source => new Promise((resolve, reject) => {
-        refs.user.evalFromUser.child(source.id).once('value')
-            .then(snap => resolve(snap.val()))
-            .catch(reject);
-      })
-    }
+    n1: { type: GraphQLString },
+    n2: { type: GraphQLString },
+    coordinate: { type: CoordinateType },
+    rM: { type: GraphQLInt },
+    rComm: { type: GraphQLString },
+    u: { type: GraphQLInt },
+    uComm: { type: GraphQLString },
+    // paymentDetail: {
+    //   type: PaymentDetailType,
+    //   resolve: source => new Promise((resolve, reject) => {
+    //     refs.user.paymentDetail.child(source.row_id).once('value')
+    //         .then(snap => resolve(snap.val()))
+    //         .catch(reject);
+    //   })
+    // },
+    // calculateDetail: {
+    //   type: CalculateDetailType,
+    //   resolve: source => new Promise((resolve, reject) => {
+    //     refs.user.calculateDetail.child(source.row_id).once('value')
+    //         .then(snap => resolve(snap.val()))
+    //         .catch(reject);
+    //   })
+    // },
   })
 });
 

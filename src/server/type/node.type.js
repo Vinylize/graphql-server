@@ -11,7 +11,10 @@ const NodeType = new GraphQLObjectType({
   name: 'node',
   description: 'NodeType of Yetta',
   fields: () => ({
-    id: { type: GraphQLString },
+    id: {
+      type: GraphQLString,
+      resolve: source => source.row_id
+    },
     n: { type: GraphQLString },
     p: { type: GraphQLString },
     type: { type: GraphQLString },

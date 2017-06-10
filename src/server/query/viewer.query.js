@@ -18,10 +18,7 @@ const ViewerQuery = {
         //     }).catch(console.log);
         mRefs.user.root.findDataById([], user.uid)
           .then((results) => {
-            resolve({
-              id: user.uid,
-              ...results[0]
-            });
+            resolve(results[0]);
           })
           .catch(reject);
       } else {
