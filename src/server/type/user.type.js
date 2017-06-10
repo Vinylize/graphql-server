@@ -213,8 +213,8 @@ const UserType = new GraphQLObjectType({
         lat: { type: new GraphQLNonNull(GraphQLFloat) },
         lon: { type: new GraphQLNonNull(GraphQLFloat) },
         radius: { type: new GraphQLNonNull(GraphQLFloat) },
-        c1: { type: new GraphQLNonNull(GraphQLString) },
-        c2: { type: GraphQLString }
+        c1: { type: new GraphQLNonNull(GraphQLInt) },
+        c2: { type: GraphQLInt }
       },
       resolve: (source, { lat, lon, radius, c1, c2 }) => new Promise(resolve =>
         mRefs.node.root.findDataInsideRadius([], null, { lat, lon }, radius)
