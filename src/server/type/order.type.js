@@ -124,11 +124,11 @@ const OrderType = new GraphQLObjectType({
           // cancel from user
           return resolve(4);
         }
-        if (source.cAt + expTime > Date.now() && !source.rId) {
+        if (Number(source.cAt) + expTime > Date.now() && !source.rId) {
           // waiting for runner
           return resolve(0);
         }
-        if (source.cAt + expTime <= Date.now() && !source.rId) {
+        if (Number(source.cAt) + expTime <= Date.now() && !source.rId) {
           // expired
           return resolve(1);
         }
