@@ -16,11 +16,6 @@ import {
 } from '../util/firebase/firebase.database.util';
 
 import {
-  mRefs,
-  mDefaultSchema
-} from '../util/sequelize/sequelize.database.util';
-
-import {
   topics,
   produceMessage
 } from '../util/kafka.util';
@@ -125,26 +120,6 @@ const userCreateOrderMutation = {
           .then(() => refs.order.customItem.child(newOrderKey).set({
             ...customItems
           }))
-          .then(() => mRefs.order.root.createData({
-            oId: user.uid,
-            nId,
-            dC,
-            rC,
-            curr,
-            tP,
-            eDP,
-            cAt: Date.now(),
-            ...dest,
-            ...mDefaultSchema.order.root,
-          }, newOrderKey))
-          .then(() => {
-            if (regItems) return Promise.all(regItems.map(regItem => mRefs.order.regItems.createData(regItem, newOrderKey)));
-            return Promise.resolve();
-          })
-          .then(() => {
-            if (customItems) return Promise.all(customItems.map(customItem => mRefs.order.customItems.createData(customItem, newOrderKey)));
-            return Promise.resolve();
-          })
           .then(() => {
             resolve({ result: newOrderKey });
           })
@@ -190,21 +165,6 @@ const runnerCatchOrderMutation = {
           }
           return refs.order.root.child(orderId).child('rId').set(user.uid);
         })
-        .then(() => mRefs.order.root.findDataById(['oId', 'rId'], orderId)
-          .then((orders) => {
-            if (orders[0].oId === user.uid) {
-              throw new Error('Can\'t ship your port.');
-            }
-            if (orders[0].rId === user.uid) {
-              throw new Error('This ship is already designated for you.');
-            }
-            if (orders[0].rId) {
-              throw new Error('This ship is already designated for other user.');
-            }
-            return mRefs.order.root.updateData({ rId: user.uid }, { where: { row_id: orderId } });
-          })
-          .catch(() => reject('Order doesn\'t exist.'))
-        )
         .then(() => {
         // TODO : impl use firebase database's user name data (now use firebase auth's name data)
           produceMessage(topics.ORDER_CATCH, orderId);
@@ -237,10 +197,6 @@ const userEvalOrderMutation = {
             m,
             comm
           })
-          .then(() => mRefs.order.root.updateData({
-            uM: m,
-            uComm: comm
-          }, { where: { row_id: orderId } }))
           .then(() => resolve({ result: 'OK' }))
           .catch(reject);
         }
@@ -272,10 +228,6 @@ const runnerEvalOrderMutation = {
             m,
             comm
           })
-          .then(() => mRefs.order.root.updateData({
-            rM: m,
-            rComm: comm
-          }, { where: { row_id: orderId } }))
           .then(() => resolve({ result: 'OK' }))
           .catch(reject);
         }

@@ -13,10 +13,6 @@ import {
 } from '../util/firebase/firebase.database.util';
 
 import {
-  mRefs
-} from '../util/sequelize/sequelize.database.util';
-
-import {
   userGeoFire
 } from '../util/firebase/firebase.geofire.util';
 
@@ -34,7 +30,6 @@ const runnerAgreeMutation = {
         isA: true,
         aAt: Date.now()
       })
-      .then(() => mRefs.user.root.updateData({ isA: true, aAt: Date.now() }, { where: { row_id: user.uid } }))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -60,14 +55,6 @@ const runnerApplyFirstJudgeMutation = {
         return refs.user.root.child(user.uid).child('isWJ').set(true);
       })
       .then(() => refs.user.root.child(user.uid).child('isWJ').set(true))
-      // mysql
-      .then(() => mRefs.user.root.findDataById(['idUrl', 'isPV', 'isRA'], user.uid))
-      .then((users) => {
-        if (!users[0].idUrl) return reject('Upload identification image first.');
-        if (!users[0].isPV) return reject('Verify your phone first.');
-        if (users[0].isRA) return reject('You are already a runner.');
-        return mRefs.user.root.updateData({ isWJ: true }, { where: { row_id: user.uid } });
-      })
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }

@@ -14,11 +14,6 @@ import {
 } from '../util/firebase/firebase.database.util';
 
 import {
-  mRefs,
-  mDefaultSchema
-} from '../util/sequelize/sequelize.database.util';
-
-import {
   nodeGeoFire
 } from '../util/firebase/firebase.geofire.util';
 
@@ -68,18 +63,6 @@ const createNodeFromAdminMutation = {
           cAt: Date.now(),
           ...defaultSchema.node.root
         })
-        // mysql
-        .then(() => mRefs.node.root.createData({
-          id: newNodeKey,
-          n,
-          p,
-          addr,
-          c1,
-          c2,
-          type,
-          cAt: Date.now(),
-          ...mDefaultSchema.node.root
-        }, newNodeKey))
         // Create new nodePriperties in firebase.
         .then(() => nodeGeoFire.set(newNodeKey, [lat, lon])
           .then(() => null, (error) => {

@@ -16,11 +16,6 @@ import {
   refs
 } from '../util/firebase/firebase.database.util';
 
-import {
-  mRefs,
-  mDefaultSchema
-} from '../util/sequelize/sequelize.database.util';
-
 import smsUtil from '../util/sms.util';
 import {
   iamportCreateSubscribePayment,
@@ -67,14 +62,6 @@ const createUserMutation = {
         .then(() => refs.user.runnerQualification.child(createdUser.uid).set({
           ...defaultSchema.user.runnerQualification
         }))
-        // mysql
-        .then(() => mRefs.user.root.createData({
-          e,
-          n,
-          pw: bcrypt.hashSync(pw, saltRounds),
-          cAt: Date.now(),
-          ...mDefaultSchema.user.root
-        }, createdUser.uid))
       )
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
@@ -95,8 +82,6 @@ const userSignInMutation = {
     if (user) {
       if (dt !== undefined && dt !== 'undefined') {
         return refs.user.root.child(user.uid).update({ dt, d })
-        // mysql
-          .then(() => mRefs.user.root.updateData({ dt, d }, { where: { row_id: user.uid } }))
           .then(() => resolve({ result: user.d && user.d === d ? 'OK' : 'WARN : There is another device logged in. That will be logged out.' }))
           .catch(reject);
       }
@@ -116,8 +101,6 @@ const userSignOutMutation = {
   mutateAndGetPayload: ({ dt, d }, { user }) => new Promise((resolve, reject) => {
     if (user) {
       return refs.user.root.child(user.uid).update({ dt: null, d: null })
-        // mysql
-        .then(() => mRefs.user.root.updateData({ dt: null, d: null }, { where: { row_id: user.uid } }))
         .then(() => resolve({ result: 'OK' }))
         .catch(reject);
     }
@@ -139,8 +122,6 @@ const userUpdateNameMutation = {
   },
   mutateAndGetPayload: ({ n }, { user }) => new Promise((resolve, reject) =>
     refs.user.root.child(user.uid).child('n').set(n)
-    // mysql
-    .then(() => mRefs.user.root.updateData({ n }, { where: { row_id: user.uid } }))
       .then(resolve({ result: 'OK' }))
       .catch(reject))
 };
@@ -164,12 +145,6 @@ const userRequestPhoneVerifiactionMutation = {
         eAt: Date.now() + (120 * 1000)
       })
         .then(() => refs.user.root.child(user.uid).child('p').set(p))
-        // mysql
-        .then(() => mRefs.user.root.updateData({
-          p,
-          code,
-          eAt: Date.now() + (120 * 1000)
-        }, { where: { row_id: user.uid } }))
         .then(() => resolve({ result: 'OK' }))
         .catch(reject);
     }
@@ -202,18 +177,6 @@ const userResponsePhoneVerificationMutation = {
         })
         .then(() => refs.user.root.child(user.uid).child('isPV').set(true))
         .then(() => refs.user.phoneVerificationInfo.child(user.uid).child('vAt').set(Date.now()))
-        // mysql
-        .then(() => mRefs.user.root.findDataById(['code', 'eAt'], user.uid)
-          .then((users) => {
-            if (users[0].code === code && users[0].eAt > Date.now()) {
-              return Promise.resolve();
-            }
-            if (users[0].eAt < Date.now()) {
-              return reject('time exceeded.');
-            }
-            throw new Error('Wrong code.');
-          })
-          .then(() => mRefs.user.root.updateData({ isPV: true, vAt: Date.now() }, { where: { row_id: user.uid } })))
         .then(() => resolve({ result: 'OK' }))
         .catch(reject);
     }
@@ -235,8 +198,6 @@ const userAgreeMutation = {
         isA: true,
         aAt: Date.now()
       })
-      // mysql
-      .then(() => mRefs.user.root.updateData({ isUA: true, uAAt: Date.now() }, { where: { row_id: user.uid } }))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -266,14 +227,6 @@ const userAddAddressMutation = {
         lat,
         lon
       })
-      // mysql
-      .then(() => mRefs.user.userAddress.createData({
-        name,
-        mAddr,
-        sAddr,
-        lat,
-        lon
-      }, user.uid))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -293,8 +246,6 @@ const userSetModeMutation = {
   mutateAndGetPayload: ({ mode }, { user }) => new Promise((resolve, reject) => {
     if (user) {
       return refs.user.root.child(user.uid).child('mode').set(mode)
-        // mysql
-        .then(() => mRefs.user.root.updateData({ mode }, { where: { row_id: user.uid } }))
         .then(() => resolve({ result: 'OK' }))
         .catch(reject);
     }
@@ -314,8 +265,6 @@ const userSetRunnerModeMutation = {
   mutateAndGetPayload: ({ rMode }, { user }) => new Promise((resolve, reject) => {
     if (user) {
       return refs.user.root.child(user.uid).child('rMode').set(rMode)
-        // mysql
-        .then(() => mRefs.user.root.updateData({ rMode }, { where: { row_id: user.uid } }))
         .then(() => resolve({ result: 'OK' }))
         .catch(reject);
     }
