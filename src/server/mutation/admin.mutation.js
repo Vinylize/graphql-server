@@ -14,10 +14,6 @@ import {
 } from '../util/firebase/firebase.database.util';
 
 import {
-  mRefs
-} from '../util/sequelize/sequelize.database.util';
-
-import {
   topics,
   produceMessage
 } from '../util/kafka.util';
@@ -149,8 +145,6 @@ const adminApproveRunnerFirstJudgeMutation = {
         isRA: true,
         rAAt: Date.now()
       })
-      // mysql
-        .then(() => mRefs.user.root.updateData({ isWJ: false, isRA: true, rAAt: Date.now() }, { where: { row_id: uid } }))
         .then(() => {
           produceMessage(topics.ADMIN_APPROVE_RUNNER, uid);
         })
@@ -188,7 +182,6 @@ const adminDisapproveRunnerFirstJudgeMutation = {
         rAAt: null
         // A 'Reason' of disapproving runner can be added
       })
-        .then(() => mRefs.user.root.updateData({ isWJ: false, isRA: false, rAAt: null }, { where: { row_id: uid } }))
         .then(() => {
           produceMessage(topics.ADMIN_DISAPPROVE_RUNNER, uid);
         })
@@ -215,8 +208,6 @@ const adminDisapproveRunnerMutation = {
         isRA: false,
         rAAt: null
       })
-      // mysql
-      .then(() => mRefs.user.root.updateData({ isWJ: false, isRA: false, rAAt: null }, { where: { row_id: uid } }))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -236,7 +227,6 @@ const adminBlockUserMutation = {
   mutateAndGetPayload: ({ uid }, { user }) => new Promise((resolve, reject) => {
     if (user && user.permission === 'admin') {
       return refs.user.root.child(uid).child('isB').set(true)
-      .then(() => mRefs.user.root.updateData({ isB: true }, { where: { row_id: uid } }))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
@@ -256,7 +246,6 @@ const adminUnblockUserMutation = {
   mutateAndGetPayload: ({ uid }, { user }) => new Promise((resolve, reject) => {
     if (user && user.permission === 'admin') {
       return refs.user.root.child(uid).child('isB').set(false)
-      .then(() => mRefs.user.root.updateData({ isB: false }, { where: { row_id: uid } }))
       .then(() => resolve({ result: 'OK' }))
       .catch(reject);
     }
