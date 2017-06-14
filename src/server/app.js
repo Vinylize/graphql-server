@@ -82,7 +82,6 @@ const startServer = (afterServerStartCallback) => {
           // TODO : Find why `logger.debug(ext.result)` doesn't work on this part.
           // logger.debug(ext.result);
           console.log(ext.result);
-          ext.result.data.auth = { user: request.user, token: request.token };
           return { runTime: `${Date.now() - startTime}ms` };
         }
         /* eslint-enable no-param-reassign */
