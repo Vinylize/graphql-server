@@ -1,8 +1,6 @@
 import {
   GraphQLString,
-  GraphQLInt,
   GraphQLNonNull,
-  GraphQLObjectType
 } from 'graphql';
 
 import {
@@ -22,101 +20,6 @@ import {
   mailType,
   sendMail
 } from '../util/mail.util';
-
-import {
-  setToken,
-  decodeToken,
-  getAuth
-} from '../util/auth/auth.jwt';
-
-const authUserType = new GraphQLObjectType({
-  name: 'authUser',
-  description: 'auth user as output',
-  fields: () => ({
-    uid: {
-      type: new GraphQLNonNull(GraphQLString),
-      resolve: user => user.uid
-    },
-    e: {
-      type: new GraphQLNonNull(GraphQLString),
-      resolve: user => user.e
-    },
-    n: {
-      type: new GraphQLNonNull(GraphQLString),
-      resolve: user => user.n
-    },
-    permission: {
-      type: new GraphQLNonNull(GraphQLString),
-      resolve: user => user.permission
-    },
-    exp: {
-      type: new GraphQLNonNull(GraphQLInt),
-      resolve: user => user.exp
-    }
-  })
-});
-
-const adminSignInMutation = {
-  name: 'adminSignIn',
-  description: 'admin sign in',
-  inputFields: {
-    e: { type: new GraphQLNonNull(GraphQLString) },
-    pw: { type: new GraphQLNonNull(GraphQLString) }
-  },
-  outputFields: {
-    user: { type: authUserType, resolve: payload => payload.user },
-    token: { type: new GraphQLNonNull(GraphQLString), resolve: payload => payload.token }
-  },
-  mutateAndGetPayload: ({ e, pw }) => new Promise((resolve, reject) => getAuth(e, pw, true)
-    .then(auth => resolve(auth))
-    .catch(reject))
-};
-
-const adminSignOutMutation = {
-  name: 'adminSignOut',
-  description: 'admin sign out',
-  inputFields: {
-    token: { type: new GraphQLNonNull(GraphQLString) }
-  },
-  outputFields: {
-    result: { type: GraphQLString, resolve: payload => payload.result }
-  },
-  mutateAndGetPayload: ({ token }, { user }) => new Promise((resolve, reject) => {
-    if (user && user.permission === 'admin') {
-      // additional logic needed
-      decodeToken(token)
-      .then(() => resolve({ result: 'OK' }))
-      .catch(reject);
-    }
-    return reject('This mutation needs accessToken.');
-  })
-};
-
-const adminRefreshAuthMutation = {
-  name: 'adminRefreshAuth',
-  description: 'admin refeshes auth',
-  inputFields: {
-    token: { type: new GraphQLNonNull(GraphQLString) }
-  },
-  outputFields: {
-    user: { type: authUserType, resolve: payload => payload.user },
-    token: { type: GraphQLString, resolve: payload => payload.token }
-  },
-  mutateAndGetPayload: ({ token }, { user }) => new Promise((resolve, reject) => {
-    if (user && user.permission === 'admin') {
-      return decodeToken(token)
-      .then(result1 => setToken({
-        uid: result1.user.uid,
-        e: result1.user.e,
-        n: result1.user.n,
-        permission: result1.user.permission
-      }))
-      .then(result2 => resolve({ user: result2.user, token: result2.token }))
-      .catch(err => reject(err));
-    }
-    return reject('This mutation needs accessToken.');
-  })
-};
 
 const adminApproveRunnerFirstJudgeMutation = {
   name: 'adminApproveRunnerFirstJudge',
@@ -275,9 +178,6 @@ const adminSendEmailToOneUserMutation = {
 };
 
 const AdminMutation = {
-  adminSignIn: mutationWithClientMutationId(adminSignInMutation),
-  adminSignOut: mutationWithClientMutationId(adminSignOutMutation),
-  adminRefreshAuth: mutationWithClientMutationId(adminRefreshAuthMutation),
   adminApproveRunnerFirstJudge: mutationWithClientMutationId(adminApproveRunnerFirstJudgeMutation),
   adminDisapproveRunnerFirstJudge: mutationWithClientMutationId(adminDisapproveRunnerFirstJudgeMutation),
   adminDisapproveRunner: mutationWithClientMutationId(adminDisapproveRunnerMutation),
